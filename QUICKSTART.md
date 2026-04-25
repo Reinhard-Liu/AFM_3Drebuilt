@@ -64,7 +64,6 @@ python3 -m src.v20_eval_fulltest_object \
 |---|---|
 | V19 主线长训(15 epoch,~36h) | [README § 9.4](README.md#94-训练) |
 | V20 主线 + 完整 EXP-01~04 | [README § 9.6](README.md#96-评估v20-主线) |
-| 真实 AFM 零样本迁移 | [README § 9.8](README.md#98-真实-afm-迁移sup-03) |
 | 训练原理 / 关键超参解释 | [README § 七](README.md#七关键技术说明) |
 | 各实验报告索引 | [docs/V19_V20实验总索引与总结.md](docs/V19_V20实验总索引与总结.md) |
 | 遇到错误 | [README § 十二 FAQ](README.md#十二常见问题答疑faq) |

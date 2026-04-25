@@ -29,7 +29,6 @@
 | 文档 | 说明 |
 |---|---|
 | [`V20_pred_object_closure_plan.md`](V20_pred_object_closure_plan.md) | V20 预测对象闭环方案 |
-| [`Q2补充实验方案.md`](Q2补充实验方案.md) | Q2 补充实验设计 |
 
 ## 4. 实验总索引与历史复盘
 

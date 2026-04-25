@@ -359,8 +359,6 @@ def _experiment_kind(name: str) -> str:
         return "EXP-03 strict/robust gap"
     if "exp04" in name:
         return "EXP-04 geometry diagnostics"
-    if "sup03" in name:
-        return "SUP-03 真实AFM"
     if "visual" in name:
         return "可视化结果"
     if "object_joint" in name:
@@ -845,118 +843,6 @@ def _render_ablation(title: str, report_path: Path) -> str:
     )
 
 
-def _render_real_afm_old(title: str, report_path: Path) -> str:
-    data = _load_json(report_path)
-    rows = []
-    for variant in ("normal", "inverted", "oracle_best"):
-        if variant not in data:
-            continue
-        overall = data[variant]["overall"] if "overall" in data[variant] else data[variant]
-        rows.append(
-            [
-                variant,
-                overall.get("num_cases", "-"),
-                _fmt(overall.get("top1")),
-                _fmt(overall.get("top3")),
-                _fmt(overall.get("top5")),
-                _fmt(overall.get("mrr")),
-                _fmt(overall.get("mean_rank")),
-                _fmt(overall.get("mean_pred_object_score")),
-                _fmt(overall.get("mean_pred_object_type_acc")),
-                _fmt(overall.get("mean_pred_object_edge_f1")),
-                _fmt(overall.get("mean_pred_object_z_mae")),
-                _fmt(overall.get("mean_pred_object_count_mae")),
-            ]
-        )
-    return "\n".join(
-        [
-            f"### {title}",
-            "",
-            f"- 报告：{_link(report_path.with_suffix('.md'))} / { _link(report_path) }",
-            "- 说明：这一版仅包含4个GT兼容case，后续已被11-case扩展版替代。",
-            "",
-            _md_table(["变体", "case数", "Top1", "Top3", "Top5", "MRR", "MeanRank", "MeanPredScore", "MeanTypeAcc", "MeanEdgeF1", "MeanZMae", "MeanCountMAE"], rows),
-            "",
-        ]
-    )
-
-
-def _render_real_afm_expanded(title: str, report_path: Path) -> str:
-    data = _load_json(report_path)
-    sections = [f"### {title}", "", f"- 报告：{_link(report_path.with_suffix('.md'))} / { _link(report_path) }", ""]
-    summary_rows = []
-    for variant in ("normal", "inverted"):
-        block = data[variant]
-        ret_all = block["retrieval_all_cases"]
-        ret_gt = block["retrieval_gt_compatible_subset"]
-        gt = block["gt_metric_subset"]
-        summary_rows.append(
-            [
-                variant,
-                ret_all["num_cases"],
-                _fmt(ret_all["top1"]),
-                _fmt(ret_all["top3"]),
-                _fmt(ret_all["top5"]),
-                _fmt(ret_all["mrr"]),
-                _fmt(ret_all["mean_rank"]),
-                ret_gt["num_cases"],
-                _fmt(ret_gt["top1"]),
-                _fmt(gt["mean_pred_object_score"]),
-                _fmt(gt["mean_pred_object_type_acc"]),
-                _fmt(gt["mean_pred_object_edge_f1"]),
-                _fmt(gt["mean_pred_object_edge_f1_robust"]),
-                _fmt(gt["mean_pred_object_z_mae"]),
-            ]
-        )
-    sections.extend(
-        [
-            _md_table(
-                ["变体", "全部case数", "AllTop1", "AllTop3", "AllTop5", "AllMRR", "AllMeanRank", "GT兼容数", "GT兼容Top1", "GT子集PredScore", "GT子集TypeAcc", "GT子集EdgeF1", "GT子集RobustEdgeF1", "GT子集ZMae"],
-                summary_rows,
-            ),
-            "",
-        ]
-    )
-    record_rows = []
-    inverted_index = {r["case_id"]: r for r in data["inverted"]["records"]}
-    for normal_r in data["normal"]["records"]:
-        inv_r = inverted_index[normal_r["case_id"]]
-        record_rows.append(
-            [
-                normal_r["case_id"],
-                normal_r["molecule_label"],
-                normal_r["tip"],
-                "是" if normal_r["gt_structure_compatible"] else "否",
-                normal_r["gt_rank"],
-                inv_r["gt_rank"],
-                "是" if normal_r["top1_hit"] else "否",
-                "是" if inv_r["top1_hit"] else "否",
-                _fmt(normal_r["pred_object_score"]),
-                _fmt(inv_r["pred_object_score"]),
-                _fmt(normal_r["pred_object_type_acc"]),
-                _fmt(inv_r["pred_object_type_acc"]),
-                _fmt(normal_r["pred_object_edge_f1"]),
-                _fmt(inv_r["pred_object_edge_f1"]),
-                _fmt(normal_r["pred_object_z_mae"]),
-                _fmt(inv_r["pred_object_z_mae"]),
-                _link(Path(normal_r["figure_path"]), "normal图"),
-                _link(Path(inv_r["figure_path"]), "inverted图"),
-            ]
-        )
-    sections.extend(
-        [
-            "逐case对比：",
-            "",
-            _md_table(
-                ["Case", "标签", "tip", "GT兼容", "Normal Rank", "Inverted Rank", "Normal Top1", "Inverted Top1", "Normal PredScore", "Inverted PredScore", "Normal TypeAcc", "Inverted TypeAcc", "Normal EdgeF1", "Inverted EdgeF1", "Normal ZMae", "Inverted ZMae", "Normal图", "Inverted图"],
-                record_rows,
-            ),
-            "",
-        ]
-    )
-    return "\n".join(sections)
-
-
 def _render_graph_smoke(title: str, fulltest_path: Path, retrieval_path: Path) -> str:
     full_data = _load_json(fulltest_path)
     ret_data = _load_json(retrieval_path)
@@ -1106,22 +992,7 @@ def build_summary() -> str:
                 "EXP-07 Type / Edge / Z / Teacher 消融",
                 EXPERIMENTS_ROOT / "v20_ablate_type_edge_debug" / "reports" / "ablation_summary.json",
             ),
-            "## 六、V20 真实 AFM 结果总表",
-            "",
-            _render_real_afm_old(
-                "SUP-03 真实 AFM 初版（4 case，已被扩展版取代）",
-                EXPERIMENTS_ROOT / "v20_object_joint_medium10_sup03_real_afm" / "reports" / "sup03_real_afm_summary.json",
-            ),
-            _render_real_afm_expanded(
-                "SUP-03 真实 AFM 扩展版（11 case）",
-                EXPERIMENTS_ROOT / "v20_object_joint_medium10_sup03_real_afm_expanded" / "reports" / "sup03_real_afm_summary.json",
-            ),
-            _render_visual15_report(
-                "SUP-03 Real11 可视化总结",
-                EXPERIMENTS_ROOT / "v20_object_joint_medium10_sup03_visual11" / "visual_reports_real11" / "summary.json",
-                is_real=True,
-            ),
-            "## 七、字段名中文释义",
+            "## 六、字段名中文释义",
             "",
             "### 1. 常见配置变量",
             "",
