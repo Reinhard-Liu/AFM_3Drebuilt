@@ -1,0 +1,74 @@
+[
+  {
+    "name": "epoch_5",
+    "epoch": 5,
+    "rmsd": 0.1901,
+    "bond_validity": 0.0807,
+    "type_match": 0.2873,
+    "cond_type_acc": 0.2756,
+    "ring_preservation": 0.9273
+  },
+  {
+    "name": "epoch_10",
+    "epoch": 10,
+    "rmsd": 0.1866,
+    "bond_validity": 0.0618,
+    "type_match": 0.2925,
+    "cond_type_acc": 0.2835,
+    "ring_preservation": 0.934
+  },
+  {
+    "name": "epoch_15",
+    "epoch": 15,
+    "rmsd": 0.1919,
+    "bond_validity": 0.3587,
+    "type_match": 0.3094,
+    "cond_type_acc": 0.3177,
+    "ring_preservation": 0.9008
+  },
+  {
+    "name": "epoch_20",
+    "epoch": 20,
+    "rmsd": 0.1977,
+    "bond_validity": 0.419,
+    "type_match": 0.3613,
+    "cond_type_acc": 0.3811,
+    "ring_preservation": 0.8746
+  },
+  {
+    "name": "epoch_25",
+    "epoch": 25,
+    "rmsd": 0.2066,
+    "bond_validity": 0.4213,
+    "type_match": 0.283,
+    "cond_type_acc": 0.3273,
+    "ring_preservation": 0.8518
+  },
+  {
+    "name": "epoch_30",
+    "epoch": 30,
+    "rmsd": 0.204,
+    "bond_validity": 0.435,
+    "type_match": 0.2831,
+    "cond_type_acc": 0.3128,
+    "ring_preservation": 0.8594
+  },
+  {
+    "name": "best",
+    "epoch": 30,
+    "rmsd": 0.2034,
+    "bond_validity": 0.4468,
+    "type_match": 0.2932,
+    "cond_type_acc": 0.326,
+    "ring_preservation": 0.8584
+  },
+  {
+    "name": "latest",
+    "epoch": 30,
+    "rmsd": 0.2042,
+    "bond_validity": 0.4301,
+    "type_match": 0.2826,
+    "cond_type_acc": 0.3206,
+    "ring_preservation": 0.8506
+  }
+]

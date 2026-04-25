@@ -1,0 +1,99 @@
+{
+  "groups": [
+    {
+      "group": "full",
+      "description": "V20 full setting",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/full/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/configs/full.json",
+      "best_epoch": 2,
+      "pred_gap": 0.06336541642016535,
+      "metrics": {
+        "peak_object_score": 0.785668709261197,
+        "pred_object_score": 0.7223032928410317,
+        "peak_center_type_acc": 0.7586386789637538,
+        "pred_object_type_acc": 0.7352265128684888,
+        "pred_object_macro_f1": 0.5487883701178721,
+        "pred_object_edge_f1": 0.7087004820049629,
+        "pred_object_edge_f1_robust": 0.9618253769946502,
+        "pred_object_count_mae": 3.953125,
+        "pred_object_z_mae": 0.08619091623768327
+      }
+    },
+    {
+      "group": "old_type_head",
+      "description": "Replace current center-conditioned type head with legacy GNN-style type head",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/old_type_head/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/configs/old_type_head.json",
+      "best_epoch": 3,
+      "pred_gap": 0.04885251428737458,
+      "metrics": {
+        "peak_object_score": 0.6694990975522623,
+        "pred_object_score": 0.6206465832648878,
+        "peak_center_type_acc": 0.6737800570417747,
+        "pred_object_type_acc": 0.6078518046059072,
+        "pred_object_macro_f1": 0.3557300715967783,
+        "pred_object_edge_f1": 0.8128328626656101,
+        "pred_object_edge_f1_robust": 0.9895624130084095,
+        "pred_object_count_mae": 3.3125,
+        "pred_object_z_mae": 0.1350454661733238
+      }
+    },
+    {
+      "group": "no_edge_head",
+      "description": "Remove object edge head and edge-related supervision",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/no_edge_head/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/configs/no_edge_head.json",
+      "best_epoch": 3,
+      "pred_gap": 0.044443550543646015,
+      "metrics": {
+        "peak_object_score": 0.6205024263602856,
+        "pred_object_score": 0.5760588758166396,
+        "peak_center_type_acc": 0.7843732442164406,
+        "pred_object_type_acc": 0.7256161696410867,
+        "pred_object_macro_f1": 0.5228089198307941,
+        "pred_object_edge_f1": 0.0,
+        "pred_object_edge_f1_robust": 0.0,
+        "pred_object_count_mae": 3.140625,
+        "pred_object_z_mae": 0.10328283183491749
+      }
+    },
+    {
+      "group": "no_z_head",
+      "description": "Disable z supervision and strip z input from object heads",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/no_z_head/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/configs/no_z_head.json",
+      "best_epoch": 3,
+      "pred_gap": 0.06652039735026172,
+      "metrics": {
+        "peak_object_score": 0.7829670175121214,
+        "pred_object_score": 0.7164466201618597,
+        "peak_center_type_acc": 0.7642361338285502,
+        "pred_object_type_acc": 0.7223971226278351,
+        "pred_object_macro_f1": 0.5129768635518858,
+        "pred_object_edge_f1": 0.6930160908848066,
+        "pred_object_edge_f1_robust": 0.9492867513643118,
+        "pred_object_count_mae": 3.0390625,
+        "pred_object_z_mae": 0.11128981680639072
+      }
+    },
+    {
+      "group": "no_teacher_consistency",
+      "description": "Disable teacher distillation and type consistency losses",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/no_teacher_consistency/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_type_edge_debug/configs/no_teacher_consistency.json",
+      "best_epoch": 3,
+      "pred_gap": 0.05579201171546633,
+      "metrics": {
+        "peak_object_score": 0.79287932031564,
+        "pred_object_score": 0.7370873086001737,
+        "peak_center_type_acc": 0.8082704732801017,
+        "pred_object_type_acc": 0.758261915683477,
+        "pred_object_macro_f1": 0.5411579784425848,
+        "pred_object_edge_f1": 0.703075717366387,
+        "pred_object_edge_f1_robust": 0.9441051657092625,
+        "pred_object_count_mae": 3.296875,
+        "pred_object_z_mae": 0.09839837394633832
+      }
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "checkpoint": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/checkpoints/best_v19_object_joint.pt",
+  "num_samples": 15,
+  "metrics_displayed": [
+    {
+      "field_name": "peak_object_score",
+      "zh_meaning": "预测中心闭环对象总分"
+    },
+    {
+      "field_name": "peak_center_type_acc",
+      "zh_meaning": "预测中心原子类型准确率"
+    },
+    {
+      "field_name": "peak_center_macro_f1",
+      "zh_meaning": "预测中心原子类型宏平均F1"
+    },
+    {
+      "field_name": "peak_center_hetero_f1",
+      "zh_meaning": "预测中心杂原子F1"
+    },
+    {
+      "field_name": "peak_center_edge_f1",
+      "zh_meaning": "预测中心对象级边F1"
+    },
+    {
+      "field_name": "atom_z_mae_r3",
+      "zh_meaning": "z轴平均绝对误差"
+    }
+  ],
+  "gt_in_top3_count": 10,
+  "records": [
+    {
+      "dataset_index": 0,
+      "gt_cid": "99458391",
+      "gt_rank": 1,
+      "top3_cids": [
+        "99458391",
+        "9966566",
+        "99798719"
+      ],
+      "top3_sims": [
+        0.6812862311818568,
+        0.6772773042968119,
+        0.663549520195561
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 42,
+      "gt_atom_count": 42,
+      "peak_object_score": 0.887421352962331,
+      "peak_center_type_acc": 0.8809523809523809,
+      "peak_center_macro_f1": 0.9393939393939394,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.7843137254901961,
+      "atom_z_mae_r3": 0.09814890793391637,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00000.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00000_5mol.png"
+    },
+    {
+      "dataset_index": 36,
+      "gt_cid": "99500",
+      "gt_rank": 1,
+      "top3_cids": [
+        "99500",
+        "9989490",
+        "9964175"
+      ],
+      "top3_sims": [
+        0.790829975797871,
+        0.7624843784945354,
+        0.7130317283913913
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 18,
+      "gt_atom_count": 21,
+      "peak_object_score": 0.8320338247347463,
+      "peak_center_type_acc": 0.7619047619047619,
+      "peak_center_macro_f1": 0.868421052631579,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.7777777777777778,
+      "atom_z_mae_r3": 0.17232864243643625,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00036.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00036_5mol.png"
+    },
+    {
+      "dataset_index": 73,
+      "gt_cid": "99564725",
+      "gt_rank": 5,
+      "top3_cids": [
+        "9990174",
+        "9991875",
+        "99811784"
+      ],
+      "top3_sims": [
+        0.6918453308149132,
+        0.6721500440946857,
+        0.6526418463959729
+      ],
+      "gt_in_top3": false,
+      "pred_atom_count": 23,
+      "gt_atom_count": 24,
+      "peak_object_score": 0.7395344878584987,
+      "peak_center_type_acc": 0.7083333333333334,
+      "peak_center_macro_f1": 0.478968253968254,
+      "peak_center_hetero_f1": 0.9411764705882353,
+      "peak_center_edge_f1": 0.8064516129032258,
+      "atom_z_mae_r3": 0.08606502413749695,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00073.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00073_5mol.png"
+    },
+    {
+      "dataset_index": 109,
+      "gt_cid": "9964302",
+      "gt_rank": 18,
+      "top3_cids": [
+        "9992282",
+        "9990789",
+        "9991700"
+      ],
+      "top3_sims": [
+        0.6464378423482771,
+        0.5995552443430745,
+        0.5990705347120702
+      ],
+      "gt_in_top3": false,
+      "pred_atom_count": 22,
+      "gt_atom_count": 26,
+      "peak_object_score": 0.7629588247802054,
+      "peak_center_type_acc": 0.6923076923076923,
+      "peak_center_macro_f1": 0.7777777777777777,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.684931506849315,
+      "atom_z_mae_r3": 0.24630287977365348,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00109.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00109_5mol.png"
+    },
+    {
+      "dataset_index": 146,
+      "gt_cid": "9965187",
+      "gt_rank": 14,
+      "top3_cids": [
+        "99503",
+        "99585",
+        "9991771"
+      ],
+      "top3_sims": [
+        0.6402824851167543,
+        0.6362151059559801,
+        0.6023421753852433
+      ],
+      "gt_in_top3": false,
+      "pred_atom_count": 29,
+      "gt_atom_count": 29,
+      "peak_object_score": 0.8153189277948898,
+      "peak_center_type_acc": 0.8275862068965517,
+      "peak_center_macro_f1": 0.8698039215686274,
+      "peak_center_hetero_f1": 0.888888888888889,
+      "peak_center_edge_f1": 0.6976744186046512,
+      "atom_z_mae_r3": 0.12568417088738804,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00146.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00146_5mol.png"
+    },
+    {
+      "dataset_index": 182,
+      "gt_cid": "9971777",
+      "gt_rank": 28,
+      "top3_cids": [
+        "9964890",
+        "9992552",
+        "9989669"
+      ],
+      "top3_sims": [
+        0.6827877834932709,
+        0.6801070211873579,
+        0.6531704429577764
+      ],
+      "gt_in_top3": false,
+      "pred_atom_count": 34,
+      "gt_atom_count": 34,
+      "peak_object_score": 0.7942955170810218,
+      "peak_center_type_acc": 0.8529411764705882,
+      "peak_center_macro_f1": 0.6297619047619047,
+      "peak_center_hetero_f1": 0.8333333333333333,
+      "peak_center_edge_f1": 0.7954545454545455,
+      "atom_z_mae_r3": 0.10639710987315458,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00182.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00182_5mol.png"
+    },
+    {
+      "dataset_index": 219,
+      "gt_cid": "99789676",
+      "gt_rank": 1,
+      "top3_cids": [
+        "99789676",
+        "99791058",
+        "99828408"
+      ],
+      "top3_sims": [
+        0.76573737228199,
+        0.7656393710959143,
+        0.7108625969758497
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 27,
+      "gt_atom_count": 28,
+      "peak_object_score": 0.8310024393065274,
+      "peak_center_type_acc": 0.75,
+      "peak_center_macro_f1": 0.8028571428571428,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.8169014084507042,
+      "atom_z_mae_r3": 0.13657759768622263,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00219.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00219_5mol.png"
+    },
+    {
+      "dataset_index": 255,
+      "gt_cid": "99801751",
+      "gt_rank": 6,
+      "top3_cids": [
+        "9992862",
+        "99801752",
+        "9947972"
+      ],
+      "top3_sims": [
+        0.683420952865223,
+        0.6808827174989579,
+        0.662336779390343
+      ],
+      "gt_in_top3": false,
+      "pred_atom_count": 37,
+      "gt_atom_count": 35,
+      "peak_object_score": 0.8564419369798911,
+      "peak_center_type_acc": 0.8571428571428571,
+      "peak_center_macro_f1": 0.8082771210400944,
+      "peak_center_hetero_f1": 0.8750000000000001,
+      "peak_center_edge_f1": 0.8470588235294119,
+      "atom_z_mae_r3": 0.05361518178667341,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00255.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00255_5mol.png"
+    },
+    {
+      "dataset_index": 292,
+      "gt_cid": "99830143",
+      "gt_rank": 2,
+      "top3_cids": [
+        "99832750",
+        "99830143",
+        "99830144"
+      ],
+      "top3_sims": [
+        0.7137518181218105,
+        0.6918059312030784,
+        0.6608955920961669
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 36,
+      "gt_atom_count": 35,
+      "peak_object_score": 0.7339254044111915,
+      "peak_center_type_acc": 0.7142857142857143,
+      "peak_center_macro_f1": 0.5466973886328724,
+      "peak_center_hetero_f1": 0.7272727272727272,
+      "peak_center_edge_f1": 0.8131868131868133,
+      "atom_z_mae_r3": 0.11390948295593262,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00292.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00292_5mol.png"
+    },
+    {
+      "dataset_index": 328,
+      "gt_cid": "99842791",
+      "gt_rank": 1,
+      "top3_cids": [
+        "99842791",
+        "99842793",
+        "99627"
+      ],
+      "top3_sims": [
+        0.821698013840274,
+        0.7702639096499008,
+        0.703920151727484
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 24,
+      "gt_atom_count": 24,
+      "peak_object_score": 0.8296933801170643,
+      "peak_center_type_acc": 0.8333333333333334,
+      "peak_center_macro_f1": 0.6214285714285713,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.8666666666666666,
+      "atom_z_mae_r3": 0.07501721382141113,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00328.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00328_5mol.png"
+    },
+    {
+      "dataset_index": 365,
+      "gt_cid": "9989736",
+      "gt_rank": 1,
+      "top3_cids": [
+        "9989736",
+        "9964142",
+        "9989542"
+      ],
+      "top3_sims": [
+        0.750782840309793,
+        0.6758200860076622,
+        0.6536522507435556
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 16,
+      "gt_atom_count": 22,
+      "peak_object_score": 0.7467996593588365,
+      "peak_center_type_acc": 0.7727272727272727,
+      "peak_center_macro_f1": 0.5155555555555555,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.7857142857142858,
+      "atom_z_mae_r3": 0.2564416148445823,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00365.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00365_5mol.png"
+    },
+    {
+      "dataset_index": 401,
+      "gt_cid": "9990591",
+      "gt_rank": 1,
+      "top3_cids": [
+        "9990591",
+        "9964733",
+        "9964927"
+      ],
+      "top3_sims": [
+        0.7903443607205445,
+        0.6726577884197715,
+        0.6696461639228302
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 23,
+      "gt_atom_count": 19,
+      "peak_object_score": 0.8236688216045567,
+      "peak_center_type_acc": 0.7368421052631579,
+      "peak_center_macro_f1": 0.7666666666666666,
+      "peak_center_hetero_f1": 0.923076923076923,
+      "peak_center_edge_f1": 0.7999999999999999,
+      "atom_z_mae_r3": 0.0010534964109721937,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00401.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00401_5mol.png"
+    },
+    {
+      "dataset_index": 438,
+      "gt_cid": "9991823",
+      "gt_rank": 1,
+      "top3_cids": [
+        "9991823",
+        "99585",
+        "9959961"
+      ],
+      "top3_sims": [
+        0.8128984449619168,
+        0.6904748855180568,
+        0.6857315123295983
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 22,
+      "gt_atom_count": 26,
+      "peak_object_score": 0.8491756785284508,
+      "peak_center_type_acc": 0.8461538461538461,
+      "peak_center_macro_f1": 0.8529166052385867,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.7761194029850745,
+      "atom_z_mae_r3": 0.1409685703424307,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00438.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00438_5mol.png"
+    },
+    {
+      "dataset_index": 474,
+      "gt_cid": "9993545",
+      "gt_rank": 1,
+      "top3_cids": [
+        "9993545",
+        "9992817",
+        "9993261"
+      ],
+      "top3_sims": [
+        0.7406889236789589,
+        0.7317120326208092,
+        0.6690088647910136
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 37,
+      "gt_atom_count": 34,
+      "peak_object_score": 0.8495678030135387,
+      "peak_center_type_acc": 0.9411764705882353,
+      "peak_center_macro_f1": 0.7048984468339308,
+      "peak_center_hetero_f1": 1.0,
+      "peak_center_edge_f1": 0.7708333333333333,
+      "atom_z_mae_r3": 0.06200274299172794,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00474.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00474_5mol.png"
+    },
+    {
+      "dataset_index": 511,
+      "gt_cid": "9998718",
+      "gt_rank": 1,
+      "top3_cids": [
+        "9998718",
+        "9965992",
+        "99798718"
+      ],
+      "top3_sims": [
+        0.7834340172709535,
+        0.63524348223327,
+        0.6194688570298705
+      ],
+      "gt_in_top3": true,
+      "pred_atom_count": 36,
+      "gt_atom_count": 41,
+      "peak_object_score": 0.7541681288425148,
+      "peak_center_type_acc": 0.7560975609756098,
+      "peak_center_macro_f1": 0.6010256410256409,
+      "peak_center_hetero_f1": 0.823529411764706,
+      "peak_center_edge_f1": 0.7454545454545454,
+      "atom_z_mae_r3": 0.0686231008390101,
+      "main_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visualizations_object15/sample_00511.png",
+      "compar_figure": "/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/visual_compar_object15/sample_00511_5mol.png"
+    }
+  ]
+}

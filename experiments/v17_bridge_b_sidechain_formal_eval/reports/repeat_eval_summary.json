@@ -1,0 +1,350 @@
+{
+  "checkpoint": "experiments/v17_bridge_b_debug/checkpoints/best_gen.pt",
+  "seeds": [
+    11,
+    22,
+    33,
+    44,
+    55
+  ],
+  "val": [
+    {
+      "seed": 11,
+      "rmsd_mean": 0.35126498341560364,
+      "rmsd_std": 0.12174563854932785,
+      "bottom_recall_mean": 0.10576357236513487,
+      "bottom_recall_std": 0.2506150991153088,
+      "bottom_rmsd_mean": 0.39617717266082764,
+      "bond_validity_gt_masked": 0.6580961346626282,
+      "bond_validity_pred_masked": 0.6712087392807007,
+      "bond_validity_mean": 0.6580961346626282,
+      "count_exact_match": 0.28125,
+      "count_mae": 1.3515625,
+      "structure_similarity": 0.4689704082310526,
+      "type_match_rate": 0.41687044846135846,
+      "coulomb_similarity": 0.446296881927561,
+      "valence_validity": 0.24972478819694277,
+      "formula_similarity": 0.8919859506837351,
+      "type_distribution_match": 0.9073643502779305,
+      "ring_preservation": 0.8982421875,
+      "composite_score": 0.5769357561081859
+    },
+    {
+      "seed": 22,
+      "rmsd_mean": 0.3443288207054138,
+      "rmsd_std": 0.1154257133603096,
+      "bottom_recall_mean": 0.10667986527361527,
+      "bottom_recall_std": 0.23441589173747485,
+      "bottom_rmsd_mean": 0.39266180992126465,
+      "bond_validity_gt_masked": 0.6467703580856323,
+      "bond_validity_pred_masked": 0.6572350859642029,
+      "bond_validity_mean": 0.6467703580856323,
+      "count_exact_match": 0.28125,
+      "count_mae": 1.3515625,
+      "structure_similarity": 0.4690230334771825,
+      "type_match_rate": 0.4191364172342108,
+      "coulomb_similarity": 0.43935685418547643,
+      "valence_validity": 0.2572935050842931,
+      "formula_similarity": 0.8935080527889029,
+      "type_distribution_match": 0.9077440989203751,
+      "ring_preservation": 0.9076171875000001,
+      "composite_score": 0.577872085134474
+    },
+    {
+      "seed": 33,
+      "rmsd_mean": 0.3421550989151001,
+      "rmsd_std": 0.11440937221050262,
+      "bottom_recall_mean": 0.12274123445998447,
+      "bottom_recall_std": 0.2613947959666825,
+      "bottom_rmsd_mean": 0.3793165683746338,
+      "bond_validity_gt_masked": 0.6421570777893066,
+      "bond_validity_pred_masked": 0.6500149965286255,
+      "bond_validity_mean": 0.6421570777893066,
+      "count_exact_match": 0.28125,
+      "count_mae": 1.3515625,
+      "structure_similarity": 0.4740475983549767,
+      "type_match_rate": 0.425099769939642,
+      "coulomb_similarity": 0.45499362854647785,
+      "valence_validity": 0.25753151701455335,
+      "formula_similarity": 0.8971936071542054,
+      "type_distribution_match": 0.9078330157790333,
+      "ring_preservation": 0.9148437500000001,
+      "composite_score": 0.5823048660586255
+    },
+    {
+      "seed": 44,
+      "rmsd_mean": 0.34562361240386963,
+      "rmsd_std": 0.12091722339391708,
+      "bottom_recall_mean": 0.09217075242465866,
+      "bottom_recall_std": 0.21314099688168098,
+      "bottom_rmsd_mean": 0.411062091588974,
+      "bond_validity_gt_masked": 0.6445335149765015,
+      "bond_validity_pred_masked": 0.6409415006637573,
+      "bond_validity_mean": 0.6445335149765015,
+      "count_exact_match": 0.28125,
+      "count_mae": 1.3515625,
+      "structure_similarity": 0.46904513368609496,
+      "type_match_rate": 0.4240839645892587,
+      "coulomb_similarity": 0.43869856761194487,
+      "valence_validity": 0.24670471128568378,
+      "formula_similarity": 0.894051645134343,
+      "type_distribution_match": 0.9075615529436618,
+      "ring_preservation": 0.9033203125000001,
+      "composite_score": 0.5737981961144359
+    },
+    {
+      "seed": 55,
+      "rmsd_mean": 0.3444910943508148,
+      "rmsd_std": 0.11188069730997086,
+      "bottom_recall_mean": 0.10588863176753802,
+      "bottom_recall_std": 0.22994634605049816,
+      "bottom_rmsd_mean": 0.38257962465286255,
+      "bond_validity_gt_masked": 0.6634325385093689,
+      "bond_validity_pred_masked": 0.6638331413269043,
+      "bond_validity_mean": 0.6634325385093689,
+      "count_exact_match": 0.28125,
+      "count_mae": 1.3515625,
+      "structure_similarity": 0.469972857948308,
+      "type_match_rate": 0.42151395623753607,
+      "coulomb_similarity": 0.44371303238793514,
+      "valence_validity": 0.24551611620203626,
+      "formula_similarity": 0.8959356064119841,
+      "type_distribution_match": 0.9088920336216688,
+      "ring_preservation": 0.9044921875,
+      "composite_score": 0.5798150568971213
+    }
+  ],
+  "test": [
+    {
+      "seed": 11,
+      "rmsd_mean": 0.31406450271606445,
+      "rmsd_std": 0.11574307829141617,
+      "bottom_recall_mean": 0.054419614673520925,
+      "bottom_recall_std": 0.16631130680519704,
+      "bottom_rmsd_mean": 0.3673631548881531,
+      "bond_validity_gt_masked": 0.6573058366775513,
+      "bond_validity_pred_masked": 0.6507358551025391,
+      "bond_validity_mean": 0.6573058366775513,
+      "count_exact_match": 0.33984375,
+      "count_mae": 1.06640625,
+      "structure_similarity": 0.4562444851363235,
+      "type_match_rate": 0.40560645693584285,
+      "coulomb_similarity": 0.40891894661029515,
+      "valence_validity": 0.24955085237626612,
+      "formula_similarity": 0.8841726106667,
+      "type_distribution_match": 0.8976666741073132,
+      "ring_preservation": 0.9130859375,
+      "composite_score": 0.5789418371675595
+    },
+    {
+      "seed": 22,
+      "rmsd_mean": 0.3049491345882416,
+      "rmsd_std": 0.0974874496459961,
+      "bottom_recall_mean": 0.06488715277777778,
+      "bottom_recall_std": 0.19437282791205507,
+      "bottom_rmsd_mean": 0.3785129487514496,
+      "bond_validity_gt_masked": 0.6571780443191528,
+      "bond_validity_pred_masked": 0.6454089879989624,
+      "bond_validity_mean": 0.6571780443191528,
+      "count_exact_match": 0.33984375,
+      "count_mae": 1.06640625,
+      "structure_similarity": 0.471100098919645,
+      "type_match_rate": 0.40412630393077903,
+      "coulomb_similarity": 0.4680672093059065,
+      "valence_validity": 0.24824887540260898,
+      "formula_similarity": 0.8995698013461899,
+      "type_distribution_match": 0.9045892634894699,
+      "ring_preservation": 0.905859375,
+      "composite_score": 0.5827850581571566
+    },
+    {
+      "seed": 33,
+      "rmsd_mean": 0.30556273460388184,
+      "rmsd_std": 0.1081865131855011,
+      "bottom_recall_mean": 0.05698164682539682,
+      "bottom_recall_std": 0.17208903099385284,
+      "bottom_rmsd_mean": 0.3479938507080078,
+      "bond_validity_gt_masked": 0.6585870981216431,
+      "bond_validity_pred_masked": 0.6578852534294128,
+      "bond_validity_mean": 0.6585870981216431,
+      "count_exact_match": 0.33984375,
+      "count_mae": 1.06640625,
+      "structure_similarity": 0.46678150115562356,
+      "type_match_rate": 0.40745231615244615,
+      "coulomb_similarity": 0.44480632346085314,
+      "valence_validity": 0.2610428184562798,
+      "formula_similarity": 0.8953268120306322,
+      "type_distribution_match": 0.9026991582941264,
+      "ring_preservation": 0.9097656250000001,
+      "composite_score": 0.5814773527583058
+    },
+    {
+      "seed": 44,
+      "rmsd_mean": 0.2997458875179291,
+      "rmsd_std": 0.09587355703115463,
+      "bottom_recall_mean": 0.0829273482593795,
+      "bottom_recall_std": 0.2153592999869892,
+      "bottom_rmsd_mean": 0.33791136741638184,
+      "bond_validity_gt_masked": 0.6618260145187378,
+      "bond_validity_pred_masked": 0.65642911195755,
+      "bond_validity_mean": 0.6618260145187378,
+      "count_exact_match": 0.33984375,
+      "count_mae": 1.06640625,
+      "structure_similarity": 0.4658676049649443,
+      "type_match_rate": 0.40858089617502874,
+      "coulomb_similarity": 0.4424734707321032,
+      "valence_validity": 0.2601662565921238,
+      "formula_similarity": 0.898002418902383,
+      "type_distribution_match": 0.9046871105674654,
+      "ring_preservation": 0.9056640625000001,
+      "composite_score": 0.5873182335734917
+    },
+    {
+      "seed": 55,
+      "rmsd_mean": 0.31265974044799805,
+      "rmsd_std": 0.11685016751289368,
+      "bottom_recall_mean": 0.09215029761904762,
+      "bottom_recall_std": 0.22717607839385373,
+      "bottom_rmsd_mean": 0.36538535356521606,
+      "bond_validity_gt_masked": 0.6571835279464722,
+      "bond_validity_pred_masked": 0.6548939943313599,
+      "bond_validity_mean": 0.6571835279464722,
+      "count_exact_match": 0.33984375,
+      "count_mae": 1.06640625,
+      "structure_similarity": 0.4709223219917398,
+      "type_match_rate": 0.4005369301657187,
+      "coulomb_similarity": 0.47022689584019073,
+      "valence_validity": 0.25126902241768057,
+      "formula_similarity": 0.8937332371477358,
+      "type_distribution_match": 0.9026764566078782,
+      "ring_preservation": 0.9070312500000001,
+      "composite_score": 0.5872399223477547
+    }
+  ],
+  "summary": {
+    "val": {
+      "rmsd_mean": {
+        "mean": 0.3455727219581604,
+        "std": 0.0030594700916783514,
+        "min": 0.3421550989151001,
+        "max": 0.35126498341560364
+      },
+      "bottom_recall_mean": {
+        "mean": 0.10664881125818626,
+        "std": 0.009694769282458528,
+        "min": 0.09217075242465866,
+        "max": 0.12274123445998447
+      },
+      "bottom_rmsd_mean": {
+        "mean": 0.3923594534397125,
+        "std": 0.011226904962244691,
+        "min": 0.3793165683746338,
+        "max": 0.411062091588974
+      },
+      "bond_validity_gt_masked": {
+        "mean": 0.6509979248046875,
+        "std": 0.008280406897154226,
+        "min": 0.6421570777893066,
+        "max": 0.6634325385093689
+      },
+      "bond_validity_pred_masked": {
+        "mean": 0.6566466927528382,
+        "std": 0.010532586597067921,
+        "min": 0.6409415006637573,
+        "max": 0.6712087392807007
+      },
+      "count_exact_match": {
+        "mean": 0.28125,
+        "std": 0.0,
+        "min": 0.28125,
+        "max": 0.28125
+      },
+      "count_mae": {
+        "mean": 1.3515625,
+        "std": 0.0,
+        "min": 1.3515625,
+        "max": 1.3515625
+      },
+      "type_match_rate": {
+        "mean": 0.4213409112924012,
+        "std": 0.0030505126208132875,
+        "min": 0.41687044846135846,
+        "max": 0.425099769939642
+      },
+      "ring_preservation": {
+        "mean": 0.9057031249999999,
+        "std": 0.005477671294674437,
+        "min": 0.8982421875,
+        "max": 0.9148437500000001
+      },
+      "composite_score": {
+        "mean": 0.5781451920625684,
+        "std": 0.002846929321713362,
+        "min": 0.5737981961144359,
+        "max": 0.5823048660586255
+      }
+    },
+    "test": {
+      "rmsd_mean": {
+        "mean": 0.307396399974823,
+        "std": 0.005292412011972456,
+        "min": 0.2997458875179291,
+        "max": 0.31406450271606445
+      },
+      "bottom_recall_mean": {
+        "mean": 0.07027321203102453,
+        "std": 0.014803688233546644,
+        "min": 0.054419614673520925,
+        "max": 0.09215029761904762
+      },
+      "bottom_rmsd_mean": {
+        "mean": 0.3594333350658417,
+        "std": 0.014535454027313877,
+        "min": 0.33791136741638184,
+        "max": 0.3785129487514496
+      },
+      "bond_validity_gt_masked": {
+        "mean": 0.6584161043167114,
+        "std": 0.0017855787724881664,
+        "min": 0.6571780443191528,
+        "max": 0.6618260145187378
+      },
+      "bond_validity_pred_masked": {
+        "mean": 0.6530706405639648,
+        "std": 0.004515231761148808,
+        "min": 0.6454089879989624,
+        "max": 0.6578852534294128
+      },
+      "count_exact_match": {
+        "mean": 0.33984375,
+        "std": 0.0,
+        "min": 0.33984375,
+        "max": 0.33984375
+      },
+      "count_mae": {
+        "mean": 1.06640625,
+        "std": 0.0,
+        "min": 1.06640625,
+        "max": 1.06640625
+      },
+      "type_match_rate": {
+        "mean": 0.40526058067196313,
+        "std": 0.002812375781326389,
+        "min": 0.4005369301657187,
+        "max": 0.40858089617502874
+      },
+      "ring_preservation": {
+        "mean": 0.9082812499999999,
+        "std": 0.002813042482404493,
+        "min": 0.9056640625000001,
+        "max": 0.9130859375
+      },
+      "composite_score": {
+        "mean": 0.5835524808008538,
+        "std": 0.0032842426136540422,
+        "min": 0.5789418371675595,
+        "max": 0.5873182335734917
+      }
+    }
+  }
+}

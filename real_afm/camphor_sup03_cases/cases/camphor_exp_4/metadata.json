@@ -1,0 +1,36 @@
+{
+  "case_id": "camphor_exp_4",
+  "molecule_name": "camphor",
+  "molecule_label": "camphor",
+  "tip": "unknown",
+  "is_experimental": true,
+  "has_gt_structure": false,
+  "gt_structure_compatible": false,
+  "source_file": "/root/autodl-tmp/real_afm_datasets/camphor_zenodo_10562769/afm_camphor/afm_camphor/4.npy",
+  "image_shape_native_dhw": [
+    10,
+    128,
+    128
+  ],
+  "image_shape_processed_dhw": [
+    10,
+    128,
+    128
+  ],
+  "normalization": {
+    "mode": "percentile_clip_minmax",
+    "q_low": 1.0,
+    "q_high": 99.0
+  },
+  "default_contrast_variant": "normal",
+  "available_contrast_variants": [
+    "normal",
+    "inverted"
+  ],
+  "files": {
+    "afm_stack": "afm_stack.npy",
+    "afm_stack_inverted": "afm_stack_inverted.npy",
+    "afm_stack_raw": "afm_stack_raw.npy",
+    "preview": "preview.png"
+  }
+}

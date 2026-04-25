@@ -1,0 +1,70 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Virtual env / IDE ---
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+*.swp
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# --- Model weights & large binaries (do NOT commit) ---
+*.pt
+*.ckpt
+*.pth
+*.bin
+*.safetensors
+*.npz
+*.h5
+*.hdf5
+*.parquet
+*.tfrecord
+
+# --- Large datasets ---
+/K-1/
+/QUAM-AFM/
+/dataverse_files/*
+!/dataverse_files/readme.txt
+
+# --- Local checkpoints / scratch ---
+/checkpoints/
+/checkpoints_v1/
+/checkpoints_v2/
+/_tmp_*/
+/tmp/
+
+# --- Logs / temp ---
+*.log
+*.tmp
+nohup.out
+
+# --- Inside experiments: never commit raw weights or pickles ---
+experiments/**/*.pt
+experiments/**/*.ckpt
+experiments/**/*.pth
+experiments/**/*.bin
+experiments/**/*.safetensors
+experiments/**/*.npz
+
+# --- Drafts / private docs (not for public release) ---
+docs/25_12_16论文大纲.pdf
+docs/Q2论文大纲.md
+docs/V12改进建议.docx
+docs/*.pdf
+docs/*.docx
+
+# --- Setup scripts containing secrets ---
+scripts/shell/setup_claude.sh

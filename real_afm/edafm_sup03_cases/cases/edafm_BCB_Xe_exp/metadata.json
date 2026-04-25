@@ -1,0 +1,55 @@
+{
+  "case_id": "edafm_BCB_Xe_exp",
+  "molecule_name": "BCB",
+  "tip": "Xe",
+  "is_experimental": true,
+  "source_npz": "/root/autodl-tmp/real_afm_datasets/edafm_zenodo_10609676/edafm-data/edafm-data/BCB/data_Xe_exp.npz",
+  "source_xyz": "/root/autodl-tmp/real_afm_datasets/edafm_zenodo_10609676/edafm-data/edafm-data/BCB/mol.xyz",
+  "image_shape_native_dhw": [
+    16,
+    512,
+    512
+  ],
+  "image_shape_processed_dhw": [
+    10,
+    128,
+    128
+  ],
+  "length_x_ang": 13.5,
+  "length_y_ang": 13.5,
+  "n_atoms": 12,
+  "elements": [
+    "35",
+    "17",
+    "17",
+    "6",
+    "6",
+    "6",
+    "6",
+    "6",
+    "6",
+    "1",
+    "1",
+    "1"
+  ],
+  "normalization": {
+    "mode": "percentile_clip_minmax",
+    "q_low": 1.0,
+    "q_high": 99.0
+  },
+  "default_contrast_variant": "normal",
+  "available_contrast_variants": [
+    "normal",
+    "inverted"
+  ],
+  "files": {
+    "afm_stack": "afm_stack.npy",
+    "afm_stack_inverted": "afm_stack_inverted.npy",
+    "afm_stack_raw": "afm_stack_raw.npy",
+    "coords_norm": "coords_norm.npy",
+    "coords_ang_centered": "coords_ang_centered.npy",
+    "atom_types": "atom_types.npy",
+    "mol_xyz": "mol.xyz",
+    "preview": "preview.png"
+  }
+}

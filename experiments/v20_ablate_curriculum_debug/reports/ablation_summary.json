@@ -1,0 +1,118 @@
+{
+  "groups": [
+    {
+      "group": "full",
+      "description": "V20 full setting",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_object_joint_debug/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/full.json",
+      "best_epoch": 3,
+      "pred_gap": 0.0671016738308714,
+      "metrics": {
+        "peak_object_score": 0.780301910969234,
+        "pred_object_score": 0.7132002371383626,
+        "peak_center_type_acc": 0.7821736924130176,
+        "pred_object_type_acc": 0.7277721397982412,
+        "pred_object_macro_f1": 0.5406908701729999,
+        "pred_object_edge_f1": 0.7134969273050615,
+        "pred_object_edge_f1_robust": 0.0,
+        "pred_object_count_mae": 2.9140625,
+        "pred_object_z_mae": 0.10753572499015718
+      }
+    },
+    {
+      "group": "gt_only",
+      "description": "Only GT object supervision; disable peak/pred closure and curriculum",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/gt_only/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/gt_only.json",
+      "best_epoch": 3,
+      "pred_gap": 0.04200323312538545,
+      "metrics": {
+        "peak_object_score": 0.7386600946318954,
+        "pred_object_score": 0.69665686150651,
+        "peak_center_type_acc": 0.7038171140029624,
+        "pred_object_type_acc": 0.7052596657005369,
+        "pred_object_macro_f1": 0.5054505082893765,
+        "pred_object_edge_f1": 0.8193790014063166,
+        "pred_object_edge_f1_robust": 0.9875752997005841,
+        "pred_object_count_mae": 3.0859375,
+        "pred_object_z_mae": 0.14211728353393482
+      }
+    },
+    {
+      "group": "peak_only",
+      "description": "Only peak-centered object supervision; remove GT and pred closure losses",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/peak_only/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/peak_only.json",
+      "best_epoch": 3,
+      "pred_gap": 0.074653030433812,
+      "metrics": {
+        "peak_object_score": 0.7978143412120717,
+        "pred_object_score": 0.7231613107782597,
+        "peak_center_type_acc": 0.8159413791338835,
+        "pred_object_type_acc": 0.7340874422734045,
+        "pred_object_macro_f1": 0.5261814665761111,
+        "pred_object_edge_f1": 0.7257256227116636,
+        "pred_object_edge_f1_robust": 0.9495253176610324,
+        "pred_object_count_mae": 3.203125,
+        "pred_object_z_mae": 0.10535414891819528
+      }
+    },
+    {
+      "group": "pred_only",
+      "description": "Only predicted-center closure supervision; remove GT and peak branches",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/pred_only/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/pred_only.json",
+      "best_epoch": 2,
+      "pred_gap": 0.023336502593959807,
+      "metrics": {
+        "peak_object_score": 0.7645470168962155,
+        "pred_object_score": 0.7412105143022557,
+        "peak_center_type_acc": 0.749319290544971,
+        "pred_object_type_acc": 0.7593271472627129,
+        "pred_object_macro_f1": 0.5617388284659797,
+        "pred_object_edge_f1": 0.7239326324218445,
+        "pred_object_edge_f1_robust": 0.9676012703670523,
+        "pred_object_count_mae": 3.375,
+        "pred_object_z_mae": 0.09075282641060767
+      }
+    },
+    {
+      "group": "no_curriculum",
+      "description": "Keep all branches but remove center/loss schedules",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/no_curriculum/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/no_curriculum.json",
+      "best_epoch": 3,
+      "pred_gap": 0.07241151465255746,
+      "metrics": {
+        "peak_object_score": 0.780352840462661,
+        "pred_object_score": 0.7079413258101035,
+        "peak_center_type_acc": 0.7832035154410798,
+        "pred_object_type_acc": 0.7172293527890761,
+        "pred_object_macro_f1": 0.5016944723788479,
+        "pred_object_edge_f1": 0.6695089946412758,
+        "pred_object_edge_f1_robust": 0.9103899267976898,
+        "pred_object_count_mae": 3.796875,
+        "pred_object_z_mae": 0.08357760944272741
+      }
+    },
+    {
+      "group": "no_pred_closure",
+      "description": "Disable predicted-center closure losses and pred consistency",
+      "checkpoint_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/no_pred_closure/checkpoints/best_v19_object_joint.pt",
+      "config_path": "/root/autodl-tmp/micro/experiments/v20_ablate_curriculum_debug/configs/no_pred_closure.json",
+      "best_epoch": 2,
+      "pred_gap": 0.0359993694365629,
+      "metrics": {
+        "peak_object_score": 0.7630709544408321,
+        "pred_object_score": 0.7270715850042692,
+        "peak_center_type_acc": 0.7368608993038185,
+        "pred_object_type_acc": 0.7257586324885111,
+        "pred_object_macro_f1": 0.5432825455080332,
+        "pred_object_edge_f1": 0.7700289266106236,
+        "pred_object_edge_f1_robust": 0.9686162413739647,
+        "pred_object_count_mae": 3.484375,
+        "pred_object_z_mae": 0.11326899558480363
+      }
+    }
+  ]
+}
