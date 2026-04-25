@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/root/autodl-tmp/micro
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TRAIN_DIR="$ROOT/experiments/v19_object_joint_full15_all"
 LOG_DIR="$TRAIN_DIR/logs"
 SAVE_DIR="$TRAIN_DIR/checkpoints"
 MONITOR_LOG="$LOG_DIR/stall_monitor.log"
-TARGET_PATTERN="src.train_v19_object_joint --config /root/autodl-tmp/micro/config_v19_object_joint_full15_all.json"
+TARGET_PATTERN="src.train_v19_object_joint --config_full15_all.json"
 STALL_SECONDS=1200
 CHECK_INTERVAL=60
 

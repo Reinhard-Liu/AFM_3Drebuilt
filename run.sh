@@ -10,7 +10,7 @@ cd "$SCRIPT_DIR/.."
 
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/micro"
 
-CONFIG="$SCRIPT_DIR/config.json"
+CONFIG="$SCRIPT_DIR/configs/config.json"
 SAVE_DIR="$SCRIPT_DIR/checkpoints"
 
 echo "============================================"

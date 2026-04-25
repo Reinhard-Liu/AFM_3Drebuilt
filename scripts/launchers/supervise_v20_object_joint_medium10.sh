@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/root/autodl-tmp/micro
-CONFIG="$ROOT/config_v19_object_joint_full15_all.json"
-TRAIN_DIR="$ROOT/experiments/v19_object_joint_full15_all"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CONFIG="$ROOT/configs/config_v20_object_joint_medium10.json"
+TRAIN_DIR="$ROOT/experiments/v20_object_joint_medium10"
 SAVE_DIR="$TRAIN_DIR/checkpoints"
 LOG_DIR="$TRAIN_DIR/logs"
 SUP_LOG="$LOG_DIR/supervisor.log"
@@ -19,7 +20,7 @@ get_target_epochs() {
   python3 - <<'PY'
 import json
 from pathlib import Path
-p = Path("/root/autodl-tmp/micro/config_v19_object_joint_full15_all.json")
+p = Path("/root/autodl-tmp/micro/config_v20_object_joint_medium10.json")
 cfg = json.loads(p.read_text())
 print(int(cfg.get("epochs", 0)))
 PY
@@ -29,7 +30,7 @@ get_latest_epoch() {
   python3 - <<'PY'
 from pathlib import Path
 import torch
-p = Path("/root/autodl-tmp/micro/experiments/v19_object_joint_full15_all/checkpoints/latest_v19_object_joint.pt")
+p = Path("/root/autodl-tmp/micro/experiments/v20_object_joint_medium10/checkpoints/latest_v19_object_joint.pt")
 if not p.exists():
     print(-1)
 else:
@@ -41,7 +42,7 @@ PY
 run_once() {
   local ts logfile
   ts="$(date -u +%Y%m%d_%H%M%S)"
-  logfile="$LOG_DIR/v19_object_joint_full15_all_${ts}.log"
+  logfile="$LOG_DIR/v20_object_joint_medium10_${ts}.log"
   log "launching training; logfile=${logfile}"
   cd "$ROOT"
   if [[ -f "$LATEST" ]]; then

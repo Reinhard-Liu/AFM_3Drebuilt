@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/root/autodl-tmp/micro
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TRAIN_DIR="$ROOT/experiments/v20_object_joint_medium10"
 LOG_DIR="$TRAIN_DIR/logs"
 SAVE_DIR="$TRAIN_DIR/checkpoints"

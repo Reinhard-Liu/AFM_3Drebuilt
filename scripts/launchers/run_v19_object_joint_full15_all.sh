@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/root/autodl-tmp/micro
-CONFIG="$ROOT/config_v19_object_joint_full15_all.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CONFIG="$ROOT/configs/config_v19_object_joint_full15_all.json"
 SAVE_DIR="$ROOT/experiments/v19_object_joint_full15_all/checkpoints"
 LOG_DIR="$ROOT/experiments/v19_object_joint_full15_all/logs"
 LATEST="$SAVE_DIR/latest_v19_object_joint.pt"
