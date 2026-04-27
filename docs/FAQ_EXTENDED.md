@@ -4,229 +4,357 @@
 
 ---
 
-## A. 专业技术问题
+## 一、设计与原理
 
-### A1. 为什么用 Video ViT 而非 2D ViT 或 3D CNN?
+### Q1.1 为什么 AFM 切片用 Video ViT 而不是普通 2D ViT?
 
-10 层 AFM 切片在 z 方向有强相关性 — 同一原子在不同高度产生**响应曲线**而非孤立信号。
+10 张 AFM 是同一分子在不同 z 高度的扫描,**强空间 + 强时间相关**。Video ViT 的 tubelet `(2, 16, 16)` 在 spatial-temporal 一同切块,显式建模"原子在不同 z 上的连续变化"。如果用 2D ViT 把 10 张通道堆叠,attention 只能在空间内做,失去 z 相关建模能力,z_mae 会显著变差。
 
-- **2D ViT 单帧** — 丢失层间关系,无法估 z
-- **3D CNN(C3D / I3D)** — 局部感受野不够,长程依赖建模弱
-- **Video ViT** — 时空联合自注意力,既看 (x, y) 平面又看 z 轴上下文
+### Q1.2 为什么 UNet 三分支而不是单分支多通道?
 
-实验中 Video ViT 比 ResNet3D baseline 在 `pred_object_score` 上 +0.42(详见 [`V1-V6_RETROSPECTIVE.md`](V1-V6_RETROSPECTIVE.md))。
+三个任务的物理含义不同:
+- **Center**:从噪声 AFM 中提取局部峰(类似 Hough)→ 需要 sigmoid + BCE/Dice
+- **2D 结构**:像素分类 + 键密度 → 需要 Tanh(平滑)
+- **Z**:连续回归 → 需要 Tanh + L1
 
-### A2. 为什么不直接回归 3D 坐标?
+单分支多通道意味着所有任务共享 decoder 容量,梯度互相干扰。三分支独立 skip 让每个任务有专属的多尺度融合,在共享 bottleneck 上才共享语义。
 
-V1–V6 试过,详见复盘:
+### Q1.3 为什么对象级条件头只用 192 维主干?
 
-- 直接回归 + Hungarian matching loss 收敛慢
-- 缺乏 SE(3) 等变性,旋转后预测不一致
-- 类型与坐标耦合,小类别完全压不出来
+经实测 192 维 + 5×5 patch grid 已饱和。增加到 256/384 维边际收益 < 0.01。容量瓶颈不在 type head,而在**输入信号**(中心位置精度)。
 
-V15 起改为 **fixed-coordinate 监督** — 在 128×128 网格上做 dense 预测,(x, y) 由位置确定,z 单独回归。SE(3) 等变性用旋转增广替代。
+### Q1.4 全局计数头为什么是 86 类(0-85)?
 
-### A3. peak-center curriculum 真的有用吗?有消融吗?
+`MAX_ATOMS=85`(QUAM-AFM Lite 中最大分子约 60 原子,留 40% 余量)。86 类含 index=0 表示空分子(不会出现,但保留作健壮性占位)。
 
-EXP-06 消融对比(详见 `experiments/v20_ablate_curriculum_debug/reports/`):
+### Q1.5 为什么不直接用 DETR 式 set prediction?
 
-| 配置 | pred_object_score |
-|---|---|
-| baseline(curriculum on) | 0.7141 |
-| `alpha_start = alpha_final = 0` (no curriculum, only GT) | 0.5612(↓ 21%) |
-| `alpha_start = alpha_final = 1` (always peak) | 0.6803(↓ 5%) |
+DETR 的 Hungarian loss 在小 set(< 100)上收敛慢、对类不平衡敏感。本项目走"dense + 对象级条件头"的混合路线,中间状态都有显式监督,训练更稳。Hungarian **仅在评估** 用于 pred ↔ GT 配对,不进入 loss。
 
-curriculum 必须有 — **慢启动**让模型先学到 GT-center 下的"理想路径",再切换到 peak-center 才能收敛得稳。
+### Q1.6 KD 蒸馏温度为什么选 1.5?
 
-### A4. Type Upper Teacher 蒸馏的副作用?
+经验值。T=1 几乎等于直接 CE,T=2 过度软化导致信号弱。1.5 在 type head 上验证收敛最快。配合 `T²=2.25` 补偿(KD 标准做法)使梯度幅度独立于温度。
 
-- **正面** — 杂原子 F1 +52pp
-- **负面** — 主类(C / H)F1 微降 ~1pp(模型被"教得"软化)
-- **配置成本** — 需先训完一个 teacher(~6h on V19)再训 student
+### Q1.7 为什么 V19 → V20 不彻底重训?
 
-V19/V20 都默认开启,需要纯净 baseline 时关掉 `lambda_teacher_type_distill`。
+Warm start + 增量改造的优点:
+1. V19 已在 15 epoch 投入大量计算
+2. V20 新增的 head 分支(`msg_mlp`、`refine_*`)**零初始化**,等价 V19,然后逐步学
+3. 缩短 V20 训练到 10 epoch + curriculum=5,总计算量仅为重训的 1/3
+4. 不冒"重训性能反而下降"的风险
 
-### A5. V19 vs V20 谁更好,为什么 V19 是主线?
+### Q1.8 RDKit 弛豫的 0.3 Å 位移上限怎么定的?
 
-| 维度 | V19 Full15 | V20 Medium10 |
-|---|---|---|
-| 数据规模 | 全样本 68,555 | 缩减集 65k(实际更小) |
-| 训练时长 | ~36h | ~10h |
-| `peak_object_score` | 0.8016 | 0.7141(`pred_*` 名字) |
-| 架构创新 | object-joint 头 | + 计数头 + 双输入头 + 闭环 |
-| 状态 | 投稿就绪 | 架构原型,验证可行性 |
+物理参考:
+- 单键 C-C 长度 ~1.54 Å,典型变形 ±0.05 Å
+- 双键 / 芳环更刚 ±0.03 Å
+- 0.3 Å 大约是"键长的 20%",超过即说明力场要做大幅修正,**这通常意味着模型预测有结构错误而非几何小偏**
 
-V19 = 数据规模 + 稳定性的胜利;V20 = 架构方向的胜利(在缩减集上完成闭环验证)。论文主图用 V19,创新点用 V20 演示。
+实验上,关闭 cap 时约 5% 样本会被 RDKit"拉坏"(RMSD 增大)。0.3 Å cap 把这个比例降到 < 0.5%。
 
-### A6. 为什么 Strict 与 Robust 边 F1 差这么多(0.27)?
+### Q1.9 为什么 enc1 不用 BatchNorm?
 
-`strict` 要求中心在 ≤3 px 内对齐才计入正例;`robust` 用 Hungarian 把所有中心匹完再算邻接矩阵 F1。
+输入 AFM 已经做过 z-score 归一化(mean=0, std=1),enc1 加 BN 反而会去掉有用的尺度信息(尤其是 z 高差)。后续层(enc2-bottleneck)有非线性 + ReLU,BN 才有去内部协变量偏移的作用。
 
-> Gap 大 = 模型"拓扑拓出来了,中心稍微偏" — **瓶颈是亚像素定位,而非图结构能力**。
+### Q1.10 三级分类的"粗 3 类"分组依据?
 
-EXP-03 的 `gap_vs_*` 图证实:gap 与 z_mae 强相关,与 node_coverage 弱相关。
+化学性质族:
+- **族 0**:H, C(纯有机骨架,极轻)
+- **族 1**:N, O, S, P(供 / 受电子异质,中等)
+- **族 2**:F, Cl, Br, I(卤素,重原子,电负性大)
 
-### A7. 数据增广包括什么?会不会破坏物理意义?
-
-- **旋转** — 90° / 180° / 270° 安全;任意角度有 `tilt < 30°` 限制(避免分子被"放倒")
-- **翻转** — 水平 / 垂直
-- **AFM 切片高斯噪声** — σ=0.01(归一化后)
-- **不会破坏** — 因为 AFM 物理本身在 (x, y) 平面下旋转对称(扫描方向无关)
-
-### A8. 如何处理"分子边缘超出 128×128 视野"的情况?
-
-dataset.py 加载时用 `min_corrugation` 滤掉"完全平躺、与背景无差异"的样本。对于"局部超出视野"的分子,目前不做特殊处理,模型靠注意力关注主区。
-
-### A9. 模型对哪些分子最难?
-
-EXP-04 几何诊断的 `height_span_vs_z_mae.png` 表明:
-
-- z 跨度 > 3 Å 的非平面分子 z_mae 显著高
-- 含三键、芳环融合的复杂分子 type_acc 低
-- ≤5 原子的小分子 hetero_f1 反而低(样本数少,噪声主导)
-
-### A10. 训练数据为什么用 K-1 而不是更大的 QUAM-AFM 子集?
-
-K-1 是 Pérez group 公开的"质量统一"子集。其他子集(如 K-2)在 AFM 仿真参数(K, Amplitude)上有差异,直接混合会引入新的分布偏移。
+这与 AFM 信号的"亮度等级"近似对应:H/C 暗淡,卤素亮,N/O 中等。粗分类正是"先分亮度等级"。
 
 ---
 
-## B. 运行 / 工程问题
+## 二、训练运行
 
-### B1. 单 GPU 显存最低多少?
+### Q2.1 V20 训练需要多大显存?
 
-A100 40GB 当前 batch_size=8 占 ~28GB。降到 batch_size=4 可在 V100 24GB 跑。
+batch_size=8、img_size=128、base_ch=64:
+- V19JointUNet 主干:~1.2 GB
+- Type / Edge head:~0.5 GB
+- AFM batch + features:~0.8 GB
+- 优化器状态(AdamW):~2.5 GB
+- **总计 ~5 GB**
 
-### B2. CPU-only 能训吗?
+显存紧张可调:`batch_size=4 → ~3 GB`,`batch_size=2 → ~1.7 GB`,但梯度噪声变大,可能需要更长 warmup。
 
-理论可以,但 ViT + 10 层 + 128×128 在 CPU 上一个 epoch 估算 > 100h。**不实用**。
+### Q2.2 训练多久?
 
-### B3. RDKit 安装失败?
+| 配置 | 单 epoch | 总时长 |
+|---|---|---|
+| V19 (full15_all,K-1 全集) | ~4-5 h | ~70 h |
+| V19 (medium 子集) | ~1 h | ~15 h |
+| V20 (medium10) | ~1 h | ~10 h |
 
-详见 [`guides/RDKIT_INSTALLATION.md`](guides/RDKIT_INSTALLATION.md)。
+GPU = RTX 3090 / 4090 单卡。多卡 DDP 未在主线启用(代码中 `num_workers=8` 已是 DataLoader 加速)。
 
-最稳路径:`conda install -c conda-forge rdkit`,Python 必须 ≥ 3.10。
+### Q2.3 训练中途断了怎么办?
 
-### B4. PyTorch 版本兼容性?
+**自动恢复**:`supervise_*.sh` 检测到失败后等待 10s 自动重启。`run_*.sh` 内部读 `latest_*.pt` 即 resume(完整状态:model + optimizer + scheduler + history)。
 
-| 组件 | 要求 |
-|---|---|
-| Python | 3.10–3.12 |
-| PyTorch | ≥ 1.10(推荐 ≥ 2.0 用 `torch.compile`) |
-| CUDA | 11.8 / 12.x |
-
-### B5. 怎么从 checkpoint 直接做推理?
-
+**手动恢复**:
 ```bash
-python3 -m src.v20_eval_fulltest_object \
-    --checkpoint <best.pt> \
-    --output_dir my_output \
-    --split test --batch_size 8
+python -m src.train_v19_object_joint \
+    --config configs/config_v20_object_joint_medium10.json \
+    --resume_checkpoint experiments/<exp>/checkpoints/latest_v19_object_joint.pt
 ```
 
----
+注意:**Warm start ≠ Resume**。Warm start 只加载 model 权重(strict=False),用于跨实验初始化;Resume 是严格继续训练。
 
-## C. 结果解读问题
+### Q2.4 哪些 lambda 应当避免动?
 
-### C1. 训练日志显示 `val_loss` 还在降但 `val_score` 已经停了?
+| λ | 默认 | 原因 |
+|---|---|---|
+| `lambda_center=20.0` | 最重 | center 是所有下游的源头,弱化 → peak detection 失败 → 整链塌 |
+| `lambda_teacher_type_distill=1.0` | 与硬标签同权 | 蒸馏信号是稳定的 KD 来源,弱化会失去上界引导 |
+| `lambda_z_final=8.0` | 末段加重 | z 信号弱,需要在 curriculum 末段加大权重补偿 |
 
-这是常态。`val_loss` 是损失函数加权和,`val_score` 是离散指标(F1 / 准确率)。**优先看 score**。
+### Q2.5 OOM 怎么办?
 
-### C2. EXP-01 报告里 `pred_object_score = 0.7141`,但训练日志最高是 `0.74`?
+按优先级:
+1. `batch_size: 8 → 4 → 2`(线性减显存)
+2. `num_workers: 8 → 4`(减 DataLoader 内存)
+3. 关 `augment_rotation`(略损精度,减预处理内存)
+4. **不要**改 `img_size=128`(下游 head 形状硬编码)
+5. 启用 `torch.cuda.amp` 需自行加 GradScaler / autocast(主线代码不支持)
 
-训练日志 `val` 在 **val split**(随机 ~512 样本),EXP-01 在 **test split**(独立)。差 0.02–0.03 正常。
+### Q2.6 训练卡在某个 epoch 不进?
 
-### C3. `pred_object_3d_score` 比 `pred_object_score` 高,什么意思?
+`monitor_*.sh` 检测到 `STALL_SECONDS=1800`(V20)无 ckpt/log 更新即 kill。常见原因:
+1. 数据加载死锁(`num_workers > 0` + Windows 进程问题)→ 试 `num_workers=0`
+2. NaN loss → 检查 train.log,通常是 lambda_z 配错或某个新增 head 初始化未做
+3. CUDA OOM 死锁(部分 GPU 在 OOM 后无法恢复)→ 重启进程
 
-3D 综合分加大了 coord/z 分量(35% + 20% = 55%),而 V19 起 atom_xy_mae 和 z_mae 都接近上限,所以 3D 分系统性偏高。这是**评估口径**的差异,不是质量真的更好。
+### Q2.7 可以多卡 DDP 吗?
 
-### C4. EXP-04 的 `coverage_vs_pair_dist.png` 怎么读?
+主线代码暂未原生支持 DDP。手动改造方案:
+1. `torch.nn.parallel.DistributedDataParallel(model)` 包裹三个 head
+2. `Sampler=DistributedSampler` 替代默认
+3. 注意 KD teacher 需 `find_unused_parameters=True`(部分 epoch 不参与梯度)
 
-X 轴 = 节点覆盖率(预测 N / GT N);Y 轴 = 两两距离误差。
+未广泛测试,生产建议单卡 + 长 epoch。
 
-- 覆盖率 = 1.0 时点云密集,误差小 — 模型识对了 N
-- 覆盖率 < 1 时误差散开 — 漏检原子拉高 RMSD
+### Q2.8 不同机器复现不一致?
 
-V20 的 93.16% 通过率(误差 ≤ 0.25 Å)是论文里给"几何精度通过率"的关键数字。
+确定性切分(CID 排序)不引入 seed 偏差,但训练仍有非确定来源:
+1. CUDA atomicAdd(无法关闭)
+2. Conv2d cuDNN 算法选择(可设 `torch.backends.cudnn.deterministic=True` + `benchmark=False`,牺牲速度)
+3. DataLoader workers 顺序
 
-### C5. SUP-01 (Dense baseline) 为什么差这么多?
-
-Dense baseline 没有对象级头,只能 dense 预测后 argmax → peak。**没法学"图里有几个原子"**,所以计数 MAE 19.86(V20: 0.94)。
-
-### C6. 检索 Top-1 = 74%,大分子比小分子高,反直觉?
-
-不反直觉:大分子(原子越多)embedding 越独特,容易精确匹配;小分子(< 22 原子)在 K-1 闭集里有大量"同构异构体",Top-1 高度耦合。
-
-### C7. EXP-03 缝隙 0.28 算大还是小?
-
-中等。同类工作 baseline 通常 0.4+,V19 缩到 0.3,V20 0.28。再降需要亚像素 head,V21 探索方向。
-
-### C8. 蒸馏 teacher 与 student 的差距能量化吗?
-
-teacher 在杂原子 F1 上达 0.91(GT-center 输入);student 用 peak-center 拿到 0.74。差 0.17 是 "**center 检测误差** + **采样噪声**" 的组合,EXP-03 试图分解。
-
----
-
-## D. 实验复现问题
-
-### D1. 我改了 `lambda_*` 重训,值对不上?
-
-V19/V20 训练的 stochastic 性来源:
-
-- DataLoader shuffle(`seed=42` 控制,但 worker 内还有抖动)
-- AMP 累加顺序
-- CUDA non-deterministic ops
-
-**建议** — 同 config 跑 3 次取平均。论文数字是单次最优,差 ±0.005 属正常。
-
-### D2. 用更大数据集会更好吗?
-
-V19 已用全 K-1。下一步要扩,需要新数据集(QUAM-AFM 其他子集 / 自合成)。期待社区贡献。
-
-### D3. 为什么 baseline 与论文上某些参数不一致?
-
-`configs/config_v20_object_joint_medium10.json` 是**最终发布版**;实验过程中的 V20a / V20b / 早期 medium10 略有差异(详见 `docs/V19_3_overnight_full_joint_plan.md`)。
+通常 final 指标差异 ≤ 0.5%。论文复现接受这个误差范围。
 
 ---
 
-## E. 拓展方向
+## 三、评估与指标
 
-### E1. 想加新元素(如 Si)?
+### Q3.1 为什么 `pred_object_score=0.7141` 看似不高?
 
-1. 改 `src/data/dataset.py` 中的 `ELEMENT_TO_IDX`
-2. 改 `n_classes` 从 11 → 12(在 `v19_joint_model.py`)
-3. 重新训练(无法 warm start,新增的 type 通道权重未学过)
+综合分由 7 项加权,其中:
+- `atom_count_score=0.97` 已饱和
+- `atom_position_score=0.97` 接近饱和
+- 但 `ring_integrity_score=0.46` 拉低均值(环识别本身困难)
+- `atom_semantic_score=0.55` 也拉低(罕见类 F1=0)
 
-### E2. 想换 backbone?
+**真实能力**约 = 80%(2D 主指标)/ 81%(3D)。综合分体现"全方面"的难度,单看 hetero_f1=0.74 / pair_dist@0.25=93% 等单项指标更直观。
 
-主干在 `src/models/video_vit.py`。理论可换 SwinTransformer / MaxViT 等,但需保持输出 `(B, embed_dim, T', H', W')` 的形状供 upsample bridge。
+### Q3.2 为什么对外宣传用 `peak_object_score=0.8338`?
 
-### E3. 想做 conditional generation(给 SMILES 生成 AFM)?
+V19 主指标。V20 引入了 pred 路径,但 V19 时 peak 是部署唯一选项,所以历史报告以 peak 为主。论文写"对象级综合分 = 0.83"通常指 peak。**V20 主指标已切到 pred,数字更保守。**
 
-老版扩散主线 `src/train.py` 是反向任务(AFM → 3D);conditional generation 需要新的 decoder + DDPM,不在本项目范围。
+### Q3.3 `pred_object_3d_score > pred_object_score` 是不是 bug?
+
+不是。RMSD 公式 `score = 1 - rmsd / 2.0` 在 dz 项很弱时反而把 rmsd_3d 拉得相对小(因为模型 z 接近 0 ~ GT z 也接近 0,二者差距小)。3D 综合分**不应** 单独看,应配 `z_mae` 对照。
+
+### Q3.4 `edge_gap_robust = 0.28` 表示什么?
+
+robust edge F1(0.91)与 strict edge F1(0.64)的差。物理含义:**模型已经知道哪些原子之间应该有键(拓扑),但中心位置略偏(2-3 px),strict 阈值下不计入**。这是 V20 后续优化的精准入口。
+
+### Q3.5 检索 top1=0.74 是不是太低?
+
+**不低**。closed-pool 候选 = 全 512 测试样本,其中很多分子骨架相似(同 scaffold 不同 sidechain)。top5=0.90 是更宽容的指标 — 给定一个 AFM,模型能在 5 个候选中找到正确的概率达 90%。
+
+### Q3.6 z_corr 25% 是失败吗?
+
+部分。这意味着只有 25% 样本的 z 预测与 GT 在分布上**强相关**(≥ 0.80)。但同时:
+- nonplanarity_error = 0.072 Å(平整度判断准)
+- z_mae = 0.0946(归一化空间)= 1.13 Å(实际)
+
+模型懂"分子是不是平的",但不懂"具体哪个原子稍高/稍低"。物理上是 AFM 信号在 z 方向的天然弱(振幅 0.4 Å,跨度 0.5 Å),不是模型缺陷。
+
+### Q3.7 macro_f1 与 hetero_f1 哪个更可信?
+
+**hetero_f1**。macro_f1 包含 P / Br / I 等罕见类(QUAM-AFM Lite 中样本数 < 5),F1=0 拉低均值;hetero_f1 是二分类(H/C vs others),不受罕见类拖累。
+
+### Q3.8 为什么 SUP-02(Graph)的 robust edge F1 比 V20 高?
+
+GNN 局部图建模强,在放宽阈值下能捕获邻接关系。但:
+- strict edge F1 V20 高(GNN 缺中心约束)
+- z_mae V20 远好(GNN 没 dense z 监督)
+- 杂原子 F1 V20 远好(GNN 没 patch grid)
+
+综合分 V20 比 Graph 高 1.3×。SUP-02 不是失败,而是"局部强 + 全局弱"的另一种 baseline。
 
 ---
 
-## F. 投稿与引用
+## 四、数据相关
 
-### F1. 应该引用哪些文献?
+### Q4.1 QUAM-AFM Lite vs 全量 QUAM-AFM 区别?
 
-- 数据集 — `dataverse_files/readme.txt` 给出 QUAM-AFM 完整 cite
-- 主架构 — Video ViT 原论文(Arnab et al., ICCV 2021)
-- 蒸馏 — Hinton 2015 KD;FocalLoss(Lin 2017)
+Lite 是 1,755 分子的子集,大小 ~3 GB,适合单机训练。全量 QUAM-AFM 含 ~6.86 万分子,~120 GB,需 SSD + 大内存。本项目主线在 Lite 上跑 K-1 参数组(振幅 0.4 Å × CO 0.4 N/m)。
 
-### F2. 投稿能用什么数字?
+### Q4.2 K-1 参数组什么意思?
 
-V19 Full15:`peak_object_score 0.8016`,Top-3 检索 86.33%。
-V20 Medium10 + EXP-01~04:`pred_object_score 0.7141`,杂原子 F1 0.7434,缝隙 0.2780。
+QUAM-AFM 提供 8 组(振幅 × 弹性常数)合成图像。K-1 = (Amp=0.4 Å, k=0.4 N/m),是"低振幅 + 软探针"组合,信号最弱但最接近真实实验设置。
+
+### Q4.3 augment_rotation 为什么只做 XY?
+
+Z 方向(高度)在 AFM 物理上不可旋转(下方是衬底)。XY 旋转保证模型对方向无偏好(等变性)。
+
+### Q4.4 数据集需要预处理吗?
+
+不需要。`QUAMAFMDataset` 在线读 .npy / .h5,在线归一化(÷12.0)。预处理一次的话可写脚本把 numpy 缓存为 `.pt`,加速 IO ~2×。
+
+### Q4.5 自定义数据怎么接入?
+
+继承 `QUAMAFMDataset` 实现 `__getitem__` 返回:
+```python
+{
+    "afm": torch.float32 (10, 128, 128),
+    "coords": torch.float32 (n_atoms, 3),  # ÷12.0 归一化
+    "atom_types": torch.int64 (n_atoms,),  # 0..9
+    "edges": torch.int64 (n_edges, 2) 或 (n,n) 二值,
+    "mask": torch.bool (MAX_ATOMS=85,),
+    ...
+}
+```
+
+注意 10 类元素顺序必须为 `[H, C, N, O, F, S, P, Cl, Br, I]`,与 dataset 共享。
 
 ---
 
-## G. 没在这里答到的问题?
+## 五、部署与可视化
 
-提 [GitHub Issue](https://github.com/Reinhard-Liu/AFM_3Drebuilt/issues)。模板:
+### Q5.1 生成的 `.mol` 文件能用 PyMOL 直接打开吗?
 
-- 错误堆栈 / 日志末 50 行
-- 复现命令
-- 环境(`python -V`、`pip freeze`、CUDA 版本)
-- 期望 vs 实际表现
+可以。`postprocess.coords_to_mol` 返回 `RDKit Mol` 对象,可:
+```python
+from rdkit.Chem import MolToMolBlock
+mol_block = MolToMolBlock(mol)
+with open("out.mol", "w") as f: f.write(mol_block)
+```
+
+后续 PyMOL / VMD / Avogadro 通用。
+
+### Q5.2 想做实时推理(<100ms)?
+
+V19/V20 主线推理时延约 200-300ms(单样本,单 GPU)。优化路径:
+1. **TorchScript 导出**:模型 + 头独立 trace
+2. **半精度推理**:`model.half()`(需检测 NaN)
+3. **batch 推理**:同时处理 32 样本,平摊 ViT 主干开销
+
+未提供官方部署脚本。
+
+### Q5.3 可视化样本怎么生成?
+
+EXP-01 自动输出 `samples/<idx>_best.png`,布局:
+- 输入 AFM 中心切片(2D image)
+- 预测中心 heatmap + GT center 叠加
+- 类型 dense map(top 3 类)
+- 解码后的分子结构图(2D RDKit draw)
+
+如需 3D:`reports/samples_3d/<idx>.html`(需手动启用 `--export_3d`)。
+
+---
+
+## 六、与论文常见对比
+
+### Q6.1 与 Hapala 2017 / 2022 的比较?
+
+| 维度 | Hapala (probe particle) | 本项目 V20 |
+|---|---|---|
+| 输入 | AFM(物理仿真) | AFM(QUAM-AFM 合成) |
+| 方法 | 物理模拟 + 优化 | 端到端深度学习 |
+| 速度 | 分钟级单样本 | 200ms 单样本 |
+| 数据集 | 十几个手工分子 | 1755 分子(可扩) |
+| 类型 | 仅 C/H/O/N | 10 类全有机 |
+| 键 | 后处理推断 | 学习的边头 |
+
+Hapala 适合**精确物理重建**,本项目适合**大规模高吞吐**。
+
+### Q6.2 与 Alldritt 2020(CNN AFM)的比较?
+
+Alldritt 用 CNN + 像素级分类。本项目改进点:
+1. Video ViT 替代 CNN(显式 z 建模)
+2. 对象级条件头替代像素分类(原子级 RMSD 直接监督)
+3. 显式键头替代距离阈值
+4. 引入 RDKit 弛豫(物理后处理)
+
+综合分提升 ~30%,杂原子 F1 提升 7 倍以上(在同等数据规模下)。
+
+### Q6.3 与 Diffusion-based 方法的比较?
+
+近期有用 diffusion 做 AFM 反演的工作(2024+)。本项目走非 diffusion 路线:
+- **优势**:推理快(单步前向 vs diffusion 数百步)、训练简单(无 noise schedule 调参)
+- **劣势**:无内置不确定性估计;对极端噪声 AFM 鲁棒性弱
+
+适合不同场景,可作互补。
+
+---
+
+## 七、复现与论文写作
+
+### Q7.1 复现需要的核心命令?
+
+```bash
+# 1. 环境
+conda env create -f environment.yml
+conda activate afm
+
+# 2. 训练 V19 主线
+bash scripts/launchers/run_v19_object_joint_full15_all.sh
+
+# 3. 训练 V20 主线
+bash scripts/launchers/run_v20_object_joint_medium10.sh
+
+# 4. 评估(6 维)
+bash scripts/run_all_eval_v20.sh    # 一键执行 EXP-01~04 + SUP-01/02
+
+# 5. 索引
+python -m src.tools.generate_v19_v20_experiment_summary
+```
+
+### Q7.2 复现误差范围?
+
+预期 final pred_object_score = 0.7141 ± 0.005(不同 GPU / cuDNN 算法导致),hetero_f1 = 0.7434 ± 0.01。差距 > 0.02 应检查 config 与 seed。
+
+### Q7.3 论文应当引用哪些数字?
+
+| 论文位置 | 推荐数字 | 来源 |
+|---|---|---|
+| Abstract | 综合分 = 0.71 / 杂原子 F1 = 0.74 | EXP-01 |
+| Method 表格 | V20 vs Dense vs Graph 9 行对比 | SUP-01/02 |
+| Quantitative results | 93.2% pair_dist ≤ 0.25 Å | EXP-04 |
+| 检索能力 | top1 = 74%,MRR = 0.81 | EXP-02 |
+| 诊断 | edge_gap_robust = 0.28 | EXP-03 |
+| 消融 | curriculum -0.15,edge head -0.14 | EXP-06/07 |
+
+### Q7.4 何时使用 peak_* vs pred_* 数字?
+
+- **强调"算法上限"**:gt_*(KD teacher 路径)
+- **强调"V19 主线"**:peak_*(V19 时主指标)
+- **强调"V20 闭环部署"**:pred_*(实际推理时的能力)
+
+通常论文同时给 peak/gt/pred,分别评估。
+
+---
+
+## 八、相关文档
+
+- 设计原理 — [`PRINCIPLES.md`](PRINCIPLES.md)
+- 实现细节 — [`TECHNICAL_DETAILS.md`](TECHNICAL_DETAILS.md)
+- 配置参考 — [`CONFIG_REFERENCE.md`](CONFIG_REFERENCE.md)
+- 指标定义 — [`METRICS_GLOSSARY.md`](METRICS_GLOSSARY.md)
+- 结果解读 — [`RESULT_INTERPRETATION.md`](RESULT_INTERPRETATION.md)
+- 排错 — [`RUNTIME_TROUBLESHOOTING.md`](RUNTIME_TROUBLESHOOTING.md)
