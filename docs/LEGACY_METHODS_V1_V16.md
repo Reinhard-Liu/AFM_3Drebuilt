@@ -339,32 +339,70 @@ V20 在 V19 基础上做"封闭部署"——把"GT-center 评估"换成"pred-cen
 
 ## 十一、可视化对比：一图胜千言
 
-下面三组对比图，是从 V1-V18 与 V19/V20 各取一个相同分子族的样本进行直观对比。
+下面分时代展示典型可视化，数据全部来自 `experiments/v*/visualizations*/`（共 647 张图已纳入仓库）。所有 V8-V16c 样本统一用 sample_00071；V18 用 sample_00069（其文件命名步长不同）；V19/V20 用 sample_00073。
 
-### 11.1 V15（历史最佳"看上去像分子"的早期版本）vs V19/V20
+### 11.1 第Ⅱ时代（V7-V10）：编码器迭代——分子完全溶解
 
-| 版本 | 样本路径 | 现象 |
-|------|---------|------|
-| V15 | `experiments/v15/visualizations/val_sample_00000.png` | 主链可见但 H 漂移、6 元环平面性破坏 |
-| V19 | `experiments/v19_object_joint_full15_all/visualizations_object15/sample_00000.png` | 骨架完整、原子计数正确、底部原子在位 |
-| V20 | `experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00000.png` | 与 V19 接近，且为 pred-center 部署模式 |
+V7-V10 在 V5b 基础上换 Swin / 加 cross-attn / 加 formula loss，但**分子可视化几乎没有可识别骨架**：
 
-### 11.2 V15 vs V19/V20 的整数倍精度差距
+| V7 (60 ep, ViT 优化, sample_00070) | V8 (60 ep, +AFM cross-attn, sample_00071) | V10 (60 ep, +Swin, sample_00071) |
+|:---:|:---:|:---:|
+| <img src="../experiments/v7/visualizations/val_sample_00070.png" width="240"/> | <img src="../experiments/v8/visualizations/val_sample_00071.png" width="240"/> | <img src="../experiments/v10/visualizations/val_sample_00071.png" width="240"/> |
 
-| 指标 | V15 (50 epoch) | V19_full15 (15 epoch) | 倍数 |
-|------|---------------|----------------------|------|
-| Coord macro F1 (gt center) | ~0.55 | 0.911 | 1.66× |
-| peak_object_score | — (未定义) | 0.802 | — |
-| 视觉通过率 (人工判定) | ~5% | ~45-60% | 9-12× |
+V7 的 val 集合切分步长是 10(故为 sample_00070);V8 起改为步长 71。可见 V7/V8/V10 的预测点云完全离散、看不出环结构。Composite 指标全部卡在 0.49 附近——这是"per-atom 监督 + 全局向量条件"的天然天花板。
+
+### 11.2 第Ⅲ时代（V11-V14）：检索头与化学先验——几何 vs 类型的零和博弈
+
+| V12 (GNN 分类器 + 化合价约束) | V13 (Procrustes 环约束) | V14 (EDM SE(3) 等变) |
+|:---:|:---:|:---:|
+| <img src="../experiments/v12/visualizations/val_sample_00071.png" width="240"/> | <img src="../experiments/v13/visualizations/val_sample_00071.png" width="240"/> | <img src="../experiments/v14/visualizations/val_sample_00071.png" width="240"/> |
+
+V14 看上去**最像分子**——RMSD 跌到 0.166，SE(3) 等变让几何更稳定。但代价是 N 类准确率 3.6%、O 类 0.2%——等变特征空间表达力被锁死，类型预测彻底崩溃。**几何精确反而暴露了类型错误**。
+
+### 11.3 第Ⅳ时代（V15-V16c）：去 SE(3) 后的两次教训
+
+V15 砍 SE(3) 等变 + cross-attn 到 c_patches。这是**第一次** val 可视化里能识别出主链：
+
+| V15 (50 ep, 去 SE(3) 转折) | V16 (50 ep, CID 检索 + 采样器 bug) | V16c (50 ep, 修 bug 反退化) |
+|:---:|:---:|:---:|
+| <img src="../experiments/v15/visualizations/val_sample_00071.png" width="240"/> | <img src="../experiments/v16/visualizations/val_sample_00071.png" width="240"/> | <img src="../experiments/v16c_best_eval_fixed/visualizations/val_sample_00071.png" width="240"/> |
+
+V15 主链可见但 H 漂移、6 元环平面破坏。V16 因 DDIM 采样器把 alpha_cumprod[t] 错指为 alpha_cumprod[1000]，整个采样链路退化为"从纯噪声直接预测 x_0"，分子坍缩成球状云团。V16c 修 bug 后 RingDetectionHead 的错误信号被反向放大，可视化反而比 V16 更碎。
+
+### 11.4 第Ⅴ时代（V17-V18）：Bridge token 与"诚实评估"
+
+V17 Bridge 系列没有可视化产出（均在 debug 阶段崩溃）。V18 第一次做严肃的 visual_review，5 个 checkpoint 共评 1000+ 样本——**视觉通过率 = 0.0000**：
+
+<table>
+<tr>
+<td align="center"><img src="../experiments/v18_visual_review/images/sample_00000.png" width="380"/><br/><sub>V18 visual_review · sample_00000</sub></td>
+<td align="center"><img src="../experiments/v18_visual_review/images/sample_00069.png" width="380"/><br/><sub>V18 visual_review · sample_00069</sub></td>
+</tr>
+</table>
+
+V18 是第一个**诚实承认**"per-atom 监督做不出 per-molecule 正确"的版本。这次的 0.0000 直接催生了 V19 的对象级监督。
+
+### 11.5 第Ⅵ时代（V19-V20）：一次性解决 5 条根因
+
+| **V19 Full15** (15 ep, peak-center 主线) | **V20 Medium10** (10 ep, pred-center 闭环) |
+|:---:|:---:|
+| <img src="../experiments/v19_object_joint_full15_all/visualizations_object15/sample_00073.png" width="380"/> | <img src="../experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00073.png" width="380"/> |
+
+骨架完整、原子计数准确、杂原子识别正确。这是 18 代努力之后，**人类首次能从重建图直接读出分子结构**。
+
+### 11.6 关键数字对比
+
+| 指标 | V14 (50 ep) | V15 (50 ep) | V18 (5 ckpt) | V19_full15 (15 ep) | V20 EXP-01 (10 ep) |
+|------|-------------|-------------|--------------|--------------------|--------------------|
+| RMSD (norm) | **0.166** | ~0.55 | — | — | — |
+| Type Macro F1 (GT center) | ~0.40 | ~0.55 | — | **0.911** | — |
+| N / O 类型准确 | 3.6% / 0.2% | ~30% / ~20% | — | >70% | >65% |
+| peak_object_score | — | — | — | **0.802** | — |
+| pred_object_score | — | — | — | — | **0.714** |
+| 视觉通过率 | ~5% | ~5% | **0.0000** | ~50% | ~45% |
 
 > V19 用 V15 三分之一的训练时长，达到了几乎所有指标 1.5-2× 的提升，可视化通过率提升约 10×。
-
-### 11.3 V18 vs V20 的"可视化通过率"对比
-
-| 版本 | 评估样本数 | 视觉通过率 | 备注 |
-|------|----------|----------|------|
-| V18 (5 个 ckpt) | 各 1000 | 0.0000 | 从未通过 |
-| V20 EXP-01 | 1000 | ~0.45 | pred-center 实用化 |
+> V20 在 V19 基础上完成 pred-center 闭环部署，代价是 GT-center 评估指标略降但部署可用性大幅提升。
 
 ---
 

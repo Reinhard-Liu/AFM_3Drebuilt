@@ -617,7 +617,24 @@ python3 -m src.tools.generate_v19_v20_experiment_summary
 
 > V19 用 GT-center 评估更宽松;V20 用 pred-center 完成"封闭部署",指标体系不同但视觉质量已同档。
 
-### 11.4 关键指标历史曲线
+### 11.4 历史时代纵向追踪——同一分子(sample_00071)在 V8 → V20
+
+下面这张表用**同一个 val 分子**(sample_00071,中等大小,含杂原子)看 8 代算法的重建轨迹。注意 V12-V16 的"骨架坍塌"、V14 的"几何精确但类型崩"、V19/V20 的"骨架 + 类型同时对":
+
+| 版本 | 时代 | 重建结果 |
+|:---:|:---:|:---:|
+| V8 (60 ep) | Ⅱ. 编码器迭代 | <img src="experiments/v8/visualizations/val_sample_00071.png" width="380"/> |
+| V12 (60 ep) | Ⅲ. 检索头探索 | <img src="experiments/v12/visualizations/val_sample_00071.png" width="380"/> |
+| V14 (50 ep) | Ⅲ. EDM 等变 | <img src="experiments/v14/visualizations/val_sample_00071.png" width="380"/> |
+| V15 (50 ep) | Ⅳ. 去 SE(3) 转折 | <img src="experiments/v15/visualizations/val_sample_00071.png" width="380"/> |
+| V16 (50 ep) | Ⅳ. CID 检索(采样器 bug) | <img src="experiments/v16/visualizations/val_sample_00071.png" width="380"/> |
+| V16c (50 ep) | Ⅳ. 修 bug 反退化 | <img src="experiments/v16c_best_eval_fixed/visualizations/val_sample_00071.png" width="380"/> |
+| **V19 Full15** (15 ep) | **Ⅵ. 对象级监督** | <img src="experiments/v19_object_joint_full15_all/visualizations_object15/sample_00073.png" width="380"/> |
+| **V20 Medium10** (10 ep) | **Ⅵ. 闭环部署** | <img src="experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00073.png" width="380"/> |
+
+> V19/V20 的 sample_id 步长是 36(不是 71),所以这里用编号 00073 与 V8-V16c 的 00071 近似匹配同一分子。其余可视化文件可在 `experiments/v*/visualizations*/` 下查看,共 ~640 张历史样本。
+
+### 11.5 关键指标历史曲线
 
 | 版本 | epochs | 主指标 | 视觉通过率 |
 |------|-------|-------|----------|
@@ -634,7 +651,7 @@ python3 -m src.tools.generate_v19_v20_experiment_summary
 | **V19_full15** | **15** | **peak_object_score 0.802** | **~50%** |
 | **V20 EXP-01** | **10** | **pred_object_score 0.714** | **~45%** |
 
-### 11.5 V1-V18 失败的 5 条根因 → V19/V20 的对应解决方案
+### 11.6 V1-V18 失败的 5 条根因 → V19/V20 的对应解决方案
 
 | 根因(V1-V18) | V19/V20 解决方案 | 代码位置 |
 |---------------|-----------------|---------|
@@ -644,7 +661,7 @@ python3 -m src.tools.generate_v19_v20_experiment_summary
 | **化学先验作 hard constraint** | 改为 logit bias 形式的 soft prior | `src/heads/type_head.py` |
 | **缺"对象级"中间表示** | CenterConditionedTypeHead/EdgeHead | [`docs/TECHNICAL_DETAILS.md`](docs/TECHNICAL_DETAILS.md) |
 
-### 11.6 给后续研究者的 5 条经验(从 V1-V18 失败中提炼)
+### 11.7 给后续研究者的 5 条经验(从 V1-V18 失败中提炼)
 
 1. **不要用"加损失"的方式注入化学约束** — V12/V16/V17 都因此失败,先验本身有误差时硬约束会被反向放大。
 2. **训练 / 部署的输入分布必须一致** — V6 TypeNet/V12 GNN/V16 CID 检索头都死于此。
