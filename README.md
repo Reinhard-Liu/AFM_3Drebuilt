@@ -66,9 +66,10 @@
 - [八、核心模块介绍](#八核心模块介绍)
 - [九、各模块运行指令](#九各模块运行指令)
 - [十、项目成果](#十项目成果)
-- [十一、数据集说明](#十一数据集说明)
-- [十二、常见问题答疑(FAQ)](#十二常见问题答疑faq)
-- [十三、引用与致谢](#十三引用与致谢)
+- [十一、版本演化:从 V1 到 V20 走过的弯路](#十一版本演化从-v1-到-v20-走过的弯路)
+- [十二、数据集说明](#十二数据集说明)
+- [十三、常见问题答疑(FAQ)](#十三常见问题答疑faq)
+- [十四、引用与致谢](#十四引用与致谢)
 
 ---
 
@@ -580,7 +581,80 @@ python3 -m src.tools.generate_v19_v20_experiment_summary
 
 ---
 
-## 十一、数据集说明
+## 十一、版本演化:从 V1 到 V20 走过的弯路
+
+> **TL;DR** — 在 V19 之前,我们用 18 个版本验证了 5 条**走不通的路**。每条路都消耗了 30-70 epoch 训练 + 数千张可视化样本,V18 最终的视觉通过率是 **0.0000**(1000 张样本无一可识别)。V19/V20 一次性解决了 V1-V18 积累的全部 5 条根因。
+>
+> **详细复盘**:[`docs/LEGACY_METHODS_V1_V16.md`](docs/LEGACY_METHODS_V1_V16.md) · **总览**:[`docs/VERSION_HISTORY.md`](docs/VERSION_HISTORY.md) · **早期数学复盘**:[`docs/V1-V6_RETROSPECTIVE.md`](docs/V1-V6_RETROSPECTIVE.md)
+
+### 11.1 五个时代速览
+
+| 时代 | 版本 | 范式 | 关键里程碑 | 死法 |
+|------|------|------|----------|------|
+| Ⅰ. 扩散反演 | V1-V5b | DDIM 在 3D 坐标上反演 | V2 RMSD 0.255 | type 信息论上限 ≈ 68% |
+| Ⅱ. 编码器迭代 | V6-V10 | ViT/Swin/CrossAttn 强化 | V6 试 7 改动崩 | Composite 卡 0.49 |
+| Ⅲ. 检索头探索 | V11-V14 | GNN/化合价/EDM 等变 | V14 RMSD 0.166 | N=3.6%/O=0.2% 类型崩 |
+| Ⅳ. 架构转折 | V15-V16c | 去 SE(3); CID 检索 | V15 首次"像分子" | 检索头放大错误 |
+| Ⅴ. 语义注入 | V17-V18 | Bridge/z 头/两阶段 eval | V18 视觉通过率 **0.0000** | 监督颗粒度问题 |
+| **Ⅵ. 对象级监督** | **V19-V20** | **object-conditioned head** | **peak 0.802 / pred 0.714** | **首次实用化** |
+
+### 11.2 同分子可视化对比:V15(早期)→ V19 → V20
+
+下面 3 张图展示**同一个分子族**(sample 编号 00000)在三代算法下的重建结果。V15 是早期"看上去像分子"的最佳代表(50 epoch);V19/V20 是最终主线(分别 15 / 10 epoch)。
+
+| **V15**(50 epoch · 早期最佳) | **V19 Full15**(15 epoch · 主线) | **V20 Medium10**(10 epoch · 闭环) |
+|:---:|:---:|:---:|
+| <img src="experiments/v15/visualizations/val_sample_00000.png" width="270"/> | <img src="experiments/v19_object_joint_full15_all/visualizations_object15/sample_00000.png" width="270"/> | <img src="experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00000.png" width="270"/> |
+| 主链可见但 H 漂移、6 元环平面性破坏、底部坍塌 | 骨架完整、原子计数准确、底部在位 | 与 V19 接近,且为 pred-center 部署模式 |
+
+### 11.3 V19/V20 同 ID 横向对比(三组样本)
+
+| sample_id | V19 Full15 | V20 Medium10 |
+|:---:|:---:|:---:|
+| **00000** | <img src="experiments/v19_object_joint_full15_all/visualizations_object15/sample_00000.png" width="320"/> | <img src="experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00000.png" width="320"/> |
+| **00255**(中位) | <img src="experiments/v19_object_joint_full15_all/visualizations_object15/sample_00255.png" width="320"/> | <img src="experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00255.png" width="320"/> |
+| **00511** | <img src="experiments/v19_object_joint_full15_all/visualizations_object15/sample_00511.png" width="320"/> | <img src="experiments/v20_object_joint_medium10_epoch10_visual15/visualizations_object15/sample_00511.png" width="320"/> |
+
+> V19 用 GT-center 评估更宽松;V20 用 pred-center 完成"封闭部署",指标体系不同但视觉质量已同档。
+
+### 11.4 关键指标历史曲线
+
+| 版本 | epochs | 主指标 | 视觉通过率 |
+|------|-------|-------|----------|
+| V1 | 60 | RMSD 1.830 | ~0% |
+| V2 | 60 | RMSD **0.255**, Type 43.6% | ~5% |
+| V3 | 60 | RMSD 1.038(Focal Loss 灾难) | <1% |
+| V5b | 50 | RMSD 0.269, Type **48.5%** | ~5% |
+| V6 | 70 | RMSD 0.519(7 改动同时上崩) | <1% |
+| V14 | 50 | RMSD **0.166** / N=3.6% / O=0.2% | ~5% |
+| V15 | 50 | val_loss 5.49(首次"像分子") | ~5% |
+| V16/V16b | 各 50 | val_loss 11.718(采样器 bug) | ~0% |
+| V17 Bridge-A/B | 各 30 | val_loss 17.21 / 21.04 | <1% |
+| V18(5 ckpt) | 各 30-50 | visual_pass_rate **0.0000** | 0% |
+| **V19_full15** | **15** | **peak_object_score 0.802** | **~50%** |
+| **V20 EXP-01** | **10** | **pred_object_score 0.714** | **~45%** |
+
+### 11.5 V1-V18 失败的 5 条根因 → V19/V20 的对应解决方案
+
+| 根因(V1-V18) | V19/V20 解决方案 | 代码位置 |
+|---------------|-----------------|---------|
+| **训练-部署 gap**:type head 训 GT、推理见 noisy | Curriculum: GT-center → peak-center → pred-center | [`docs/PRINCIPLES.md §三`](docs/PRINCIPLES.md) |
+| **评估指标偏离用户需求** | object_score / peak_object_score / 视觉 review | [`docs/METRICS_GLOSSARY.md`](docs/METRICS_GLOSSARY.md) |
+| **单监督单元(per-atom)** | 监督颗粒度上抬到 object 级 | `src/heads/object_heads.py` |
+| **化学先验作 hard constraint** | 改为 logit bias 形式的 soft prior | `src/heads/type_head.py` |
+| **缺"对象级"中间表示** | CenterConditionedTypeHead/EdgeHead | [`docs/TECHNICAL_DETAILS.md`](docs/TECHNICAL_DETAILS.md) |
+
+### 11.6 给后续研究者的 5 条经验(从 V1-V18 失败中提炼)
+
+1. **不要用"加损失"的方式注入化学约束** — V12/V16/V17 都因此失败,先验本身有误差时硬约束会被反向放大。
+2. **训练 / 部署的输入分布必须一致** — V6 TypeNet/V12 GNN/V16 CID 检索头都死于此。
+3. **可视化通过率比 RMSD/Type Match 更接近用户需求** — V14 RMSD 0.166 看似惊艳,但分子完全错。
+4. **监督颗粒度决定结果颗粒度** — per-atom loss 永远做不出 per-molecule 正确的分子。
+5. **每次只改一项** — V6 同时改 7 项性能崩塌,V19 是经历 5 个子版本逐步迭代才出 full15。
+
+---
+
+## 十二、数据集说明
 
 | 数据集 | 来源 | 规模 | 用途 |
 |---|---|---|---|
@@ -612,7 +686,7 @@ python3 -m src.tools.generate_v19_v20_experiment_summary
 
 ---
 
-## 十二、常见问题答疑(FAQ)
+## 十三、常见问题答疑(FAQ)
 
 > 简版 FAQ。**专业技术 / 运行 / 解读**全部问题见 [`docs/FAQ_EXTENDED.md`](docs/FAQ_EXTENDED.md);安装与运行排错见 [`docs/RUNTIME_TROUBLESHOOTING.md`](docs/RUNTIME_TROUBLESHOOTING.md)。
 
@@ -679,7 +753,7 @@ Full-test 用 `val_size=512` 在 **test split** 评估;训练日志的 `val` 在
 
 ---
 
-## 十三、引用与致谢
+## 十四、引用与致谢
 
 ### 数据集
 

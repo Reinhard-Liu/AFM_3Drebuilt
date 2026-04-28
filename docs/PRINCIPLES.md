@@ -214,16 +214,58 @@ EXP-06 / EXP-07 ablation:
 
 ---
 
-## 六、从 V18 → V19 → V20 的演化
+## 六、从 V1 → V20 的完整演化与 5 阶段瓶颈
+
+V19/V20 的设计不是一蹴而就的,它建立在 V1-V18 共 18 个失败/部分成功的版本之上。每个时代都揭示了一个不同的**瓶颈**,V19/V20 正是逐个对应解决了这些瓶颈。
+
+### 6.1 五阶段瓶颈表
+
+| 阶段 | 版本 | 瓶颈 | 暴露此瓶颈的实证 | V19/V20 的修复 |
+|------|------|------|----------------|----------------|
+| Ⅰ | V1-V5b | type 信息论上限 ~68%(仅靠邻居数推断) | V5b RMSD 0.269 但 type 卡 48.5% | 引入对象级中间表示,中心 + AFM 局部 patch 联合预测 |
+| Ⅱ | V6-V10 | 改编码器(ViT/Swin/CrossAttn)无救 | V7-V10 Composite 持平 0.49 | 把监督颗粒度改为 object 而非 atom |
+| Ⅲ | V11-V14 | 检索头/化学先验作 hard constraint 放大错误 | V14 RMSD 0.166 但 N=3.6%/O=0.2% | 改为 logit bias 形式的 soft prior;curriculum 软切换 |
+| Ⅳ | V15-V16c | 全局向量 c → 噪声坐标 → type 这条路太长 | V15 val_loss 5.49(去 SE(3) 后表达力够但样本效率差) | object 直接 attend pixel 子集,绕过全局压缩 |
+| Ⅴ | V17-V18 | 训练-部署输入分布不一致 | V18 视觉通过率 **0.0000** | 三档 curriculum: GT-center → peak → pred |
+
+### 6.2 V18 → V19 → V20 的关键迭代
 
 | 版本 | 核心改动 | 解决的问题 |
 |---|---|---|
 | V17 Bridge | dense + 检索 + ring | 引入站点、site graph |
-| V18 | 加入 z 头 | 让 dense 学 3D |
+| V18 | 加入 z 头 + 两阶段 eval | 让 dense 学 3D;首次诚实承认视觉通过率 = 0 |
 | **V19** | **对象级条件头**(type + edge)+ KD + curriculum | **train-deploy gap** |
 | **V20** | dual-input type head + 一致性 KL + 显式计数 loss + edge refinement | **闭环一致性** + 全局/对象联动 |
 
 每次迭代都在补一个**显式信号通路**,而非堆模型容量。
+
+### 6.3 V19/V20 设计原则的"反向工程"
+
+每条 V19/V20 设计原则都在解决一个具体的 V1-V18 老问题:
+
+| V19/V20 原则 | 它在解决谁的失败 |
+|-------------|----------------|
+| Object-conditioned head 替代 per-atom head | V1-V14 per-atom 监督的根本局限 |
+| Three-tier classification(coarse-3 / hetero-2 / fine-10) | V3 Focal Loss 长尾失败、V14 N/O 类型崩 |
+| Curriculum: GT-center → peak → pred | V6 TypeNet/V12 GNN/V16 CID 检索头的 train-deploy gap |
+| Soft logit bias 替代 hard constraint | V13 Procrustes/V16 ring/V17 Bridge 的硬约束放大错误 |
+| object_score / peak_object_score / 视觉 review | V18 才补的"诚实评估",首次和用户需求对齐 |
+| 监督颗粒度 = object 级 | V1-V18 全部 per-atom 损失无法做出 per-molecule 正确 |
+
+### 6.4 训练效率的对比
+
+| 时代 | 代表版本 | epochs | 视觉通过率 | 单位 epoch 收益 |
+|------|---------|-------|----------|---------------|
+| 扩散反演 | V5b | 50 | ~5% | 0.10%/ep |
+| 编码器迭代 | V7-V10 | 各 50 | ~5% | 0.10%/ep |
+| 架构转折 | V15 | 50 | ~5% | 0.10%/ep |
+| 语义注入 | V18 | 各 30-50 | 0.0% | 0.00%/ep |
+| **对象级监督** | **V19_full15** | **15** | **~50%** | **3.33%/ep** |
+| **闭环部署** | **V20 EXP-01** | **10** | **~45%** | **4.50%/ep** |
+
+> V19/V20 用 1/3-1/5 的训练时长达到 10× 的视觉通过率提升。这不是"训练更久",而是**监督单元改了**。
+
+详细失败分析见 [`LEGACY_METHODS_V1_V16.md`](LEGACY_METHODS_V1_V16.md);版本演化总览见 [`VERSION_HISTORY.md`](VERSION_HISTORY.md)。
 
 ---
 
